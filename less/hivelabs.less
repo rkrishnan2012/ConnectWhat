@@ -1,0 +1,102 @@
+.app-header {
+	background-size: cover;
+    background-image: linear-gradient(to top, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 1) 40vw, #ffffff), url("/img/canoe.png");
+	background-position: bottom;
+	background-size: 100% auto;
+	background-color: rgba(255, 255, 255, .4);
+	height: 100vh;
+}
+
+.navbar {
+	li > a {
+		color: @gray-light !important;
+	}
+	li > a:hover {
+		color: @green !important;
+	}
+	li > a:active {
+		color: @green !important;
+		font-weight: 600;
+	}
+
+	li.active > a{
+		color: @green !important;
+		font-weight: 600;
+	}
+
+	.navbar-brand {
+		font-weight: 300;
+		color: @green !important;
+		display: inline-flex !important;
+		text-transform: uppercase;
+		font-size: calc(@navbar-height - (2 * @navbar-padding-vertical));
+		span:first-of-type {
+			display: inline-block;
+			color:@gray-light !important;
+			margin-right: 10px;
+			margin-left: 10px;
+		}
+		img{
+			height: calc(@navbar-height - (2 * @navbar-padding-vertical));
+		}
+	}
+	.navbar-toggle .icon-bar {
+		background-color: @gray-light !important; 
+	}
+} 
+
+#example {
+	.btn-go {
+		margin-top: ~"calc(1em + 5px)";	 
+	}
+	.btn-stop {
+		margin-top: 1em;	 
+	}
+	.progress {
+		width: 70%;
+		float: left;
+		margin-top: 1.5em;
+		margin-right: 10px;
+	}
+	.entityTable {
+		.selected {
+			color: #29a468;
+			font-weight: 600;
+		}
+	}
+	.entityTable td {
+		line-height: .7em !important;
+	}
+} 
+
+#bumblebee {
+	.relation-img {
+		background-image: url('../img/relation-img.png');
+		width: 300px;
+		height: 250px;
+		background-size: contain;
+		background-position: center;
+		background-repeat: no-repeat;
+		margin-right: 30px;
+	}
+}
+
+#pricing {
+	h6{
+		color: #29a468 !important;
+	}
+}
+
+#apiAccess {
+	pre {
+		max-width: ~'calc(100vw - 100px)' !important; 
+	}
+}
+
+#exampleSlide {
+	padding-top: 100px;
+}
+
+#footerSlide {
+	padding-top: 80px;
+}
