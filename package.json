@@ -1,23 +1,28 @@
 {
-  "private": true,
-  "name": "toolkit-dashboard",
+  "name": "connectwhat",
   "version": "1.0.0",
-  "description": "A bootstrap toolkit.",
-  "main": "gulpfile.js",
-  "author": "Colossal",
+  "description": "Powered by Bumblebee API.",
+  "main": "app.js",
   "scripts": {
-    "start": "./node_modules/.bin/gulp docs"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-autoprefixer": "^2.3.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-connect": "^2.2.0",
-    "gulp-less": "^3.0.3",
-    "gulp-minify-css": "^1.2.0",
-    "gulp-open": "^1.0.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.5.2",
-    "gulp-uglify": "^1.2.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hive-Labs/ConnectWhat.git"
+  },
+  "keywords": [
+    "ConnectWhat",
+    "BumbleBee"
+  ],
+  "author": "Bunchhieng Soth <Bunchhieng@gmail.com> (http://www.hackbits.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hive-Labs/ConnectWhat/issues"
+  },
+  "homepage": "https://github.com/Hive-Labs/ConnectWhat#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.4.8"
   }
 }
