@@ -11,20 +11,72 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+    <!-- Initialize Socket.io -->
     <script>
       var socket = io();
     </script>
+    <!-- End Socket.io -->
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <!--[if lt IE 9]> <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script> <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script> <![endif]-->
   </head>
   <body>
-    <p>
-      Hive-Labs
-    </p>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({appId: '1893670000921517', xfbml: true, version: 'v2.7'});
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            console.log('Logged in.');
+          } else {
+            FB.login();
+          }
+        });
+      };
+
+      (function(d, s, id) {
+        var js,
+          fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {
+          return;
+        }
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+      function login() {
+        FB.login(function(response) {
+          // handle the response
+          console.log("Response goes here!");
+
+        }, {scope: 'read_friendlists, read_custom_friendlists'});
+      }
+
+      function logout() {
+        FB.logout(function(response) {
+          // user is now logged out
+        });
+      }
+
+      function getFriendsList() {
+        FB.api('/me/friendlists', function(response) {
+          if(response && !response.error) {
+            console.log(JSON.stringify(response))
+          }
+        });
+      }
+    </script>
+    <div class="container">
+      <button onclick="javascript:login();">Login Facebook</button>
+
+      <br>
+
+      <button onclick="javascript:logout();">Logout from Facebook</button>
+      <button onclick="javascript:getFriendsList();">Get Friends List</button>
+      <div id="friends"></div>
+    </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
