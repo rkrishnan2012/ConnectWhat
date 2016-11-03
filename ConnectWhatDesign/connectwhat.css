@@ -19,27 +19,26 @@ body {
     opacity: 0.7;
     font-size: 24px;
     font-weight: bold;
-    margin-left: 670px;
-    margin-top: -60px;
+    margin-top: -50px;
+}
+.circleset{
+    width: 500px;
+    height: 200px;
+    margin-top: 100px;
 }
 .circle1 {
 	border-radius: 50%;
     width: 200px;
     height: 200px;
-    margin-left: 350px;
-    margin-top: 100px;
     border: 6px solid #29a468;
-    display: inline-block;
+    float: left;
 }
 .circle2 {
 	border-radius: 50%;
     width: 200px;
     height: 200px;
-    margin-right: 350px;
     border: 6px solid #29a468;
     float: right;
-    display: inline-block;
-    margin-top: 100px;
 }
 .infoText {
     font-family: 'Gotham-Light';
@@ -50,15 +49,15 @@ body {
     width: 300px;
     text-align: center;
     margin-top: 20px;
-    margin-left: 530px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .inviteLink {
 	font-family: 'Gotham-Light';
     color: #29a468;
     font-size: 20px;
-    margin-top: 50px;
-    margin-left: 600px;
     font-weight: bold;
+    margin-top: 50px;
 }
 .inviteLink:hover {
 	cursor: pointer;
@@ -67,11 +66,17 @@ body {
 	color: white;
     font-size: 30px;
     font-family: 'Gotham-Light';
-    margin-left: 490px;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 40px;
     border: 3px solid #29a468;
     width: 375px;
     height: 60px;
     padding-top: 10px;
     padding-left: 10px;
+}
+.overlay {
+    text-align: center;
+    margin: auto;
+    width: 500px;
 }
