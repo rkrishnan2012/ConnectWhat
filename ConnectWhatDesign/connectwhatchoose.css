@@ -34,6 +34,7 @@ body {
     height: 60px;
     padding-top: 10px;
     background-color: #403E3F;
+    text-align: center;
 }
 .continueBtn:hover{
     border: 3px solid #29a468;
