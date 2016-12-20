@@ -3,8 +3,9 @@ window.fbAsyncInit = function () {
     FB.getLoginStatus(function (response) {
         if (response.status === 'connected') {
             console.log('Logged in.');
+            loadUserPage();
         } else {
-            FB.login();
+            login();
         }
     });
 };
@@ -21,10 +22,22 @@ window.fbAsyncInit = function () {
     fjs.parentNode.insertBefore(js, fjs);
 } (document, 'script', 'facebook-jssdk'));
 
+function loadUserPage(){
+    
+}
+
 function login() {
     FB.login(function (response) {
         // handle the response
-        console.log("Response goes here!");
+        console.log("Login!");
+
+        FB.api('/me', {fields: 'name'}, function(response) {
+            console.log(response.name, response.id);
+        });
+
+        FB.api('/me', {edge: 'picture'}, function(response) {
+            console.log("Picture: " + response);
+        });
 
     }, { scope: 'read_custom_friendlists' });
 }
