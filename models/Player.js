@@ -7,12 +7,12 @@ SCHEMA_VERSION = 1;
 	gamesLost
 
 */
-function Player(id, name, gamesWon, gamesLost) {
-  if(!id || !name || !gamesWon || !gamesLost) throw "Illegal arguments while making a player.";
-  this._id =  id;
+function Player(fbid, name) {
+  if(!fbid || !name) throw "Illegal arguments while making a player.";
+  this.fbid =  fbid;
   this.name = name;
-  this.gamesWon = gamesWon;
-  this.gamesLost = gamesLost;
+  this.gamesWon = 0;
+  this.gamesLost = 0;
 }
 
 module.exports = {

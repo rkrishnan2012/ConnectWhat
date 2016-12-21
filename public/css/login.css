@@ -1,0 +1,34 @@
+@font-face {
+    font-family: 'Gotham-Light';
+    src: url('/fonts/Gotham-Light.ttf');
+}
+body {
+	background-color: #403E3F;
+    text-align: center;
+    color: white;
+}
+
+.facebookBtn{
+    color: white;
+    font-size: 15pt;
+    font-family: 'Gotham-Light';
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50vh;
+    text-align: center;
+    background-color: #4267B2;
+    display: block;
+}
+
+.loginStuff {
+    display: none;
+}
+
+.facebookBtn:hover{
+    background-color: #5b7bd5;
+    cursor: pointer;
+}
+
+.promiseText {
+    margin-top: 10px;
+}
