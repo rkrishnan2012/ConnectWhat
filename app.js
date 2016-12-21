@@ -16,15 +16,15 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html')
 });
 
-app.get('/api/v1/me', function* (req, res) {
+app.get('/api/v1/me', function*(req, res) {
     if (!req.cookies.fbtoken) {
         res.status(401).end("You are not authenticated.");
     } else {
         yield db.connect();
         var fbUser = yield getFbUser(req.cookies.fbtoken);
-        if(!fbUser) {
-        	res.status(401).end("You are not authenticated.");
-        	return;
+        if (!fbUser) {
+            res.status(401).end("You are not authenticated.");
+            return;
         }
         var player = yield makePlayer(fbUser.id, fbUser.name);
         res.json(player);
@@ -39,35 +39,23 @@ app.post('/api/v1/game', function*(req, res) {
         var fbUser = yield getFbUser(req.cookies.fbtoken);
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield makeGame(player);
-        res.json({
-            status: "OK",
-            gameUrl: "http://bit.ly/" + game.shortId,
-            players: game.players,
-            scores: game.scores
-        });
+        res.json(game);
     }
 });
 
-app.get('/api/v1/games', function* (req, res) {
+app.get('/api/v1/games', function*(req, res) {
     if (!req.cookies.fbtoken) {
         res.status(401).end("You are not authenticated.");
     } else {
         yield db.connect();
         var fbUser = yield getFbUser(req.cookies.fbtoken);
-        if(!fbUser) {
-        	res.status(401).end("You are not authenticated.");
-        	return;
+        if (!fbUser) {
+            res.status(401).end("You are not authenticated.");
+            return;
         }
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var games = yield getGames(player);
-        res.json(games.map((game)=>{
-        	return {
-        		status: "your turn",
-	            gameUrl: "http://bit.ly/" + game.shortId,
-	            players: game.players,
-	            scores: game.scores
-        	}
-        }));
+        res.json(games);
     }
 });
 
@@ -89,7 +77,7 @@ app.get('/join/:id', function*(req, res) {
                 game.scores.push(0);
                 game = yield(cb) => {
                     db.Games.update({
-                    	_id: game._id
+                        _id: game._id
                     }, game, cb);
                 }
                 res.redirect("/?join=" + req.params.id);
@@ -110,6 +98,16 @@ function* getFbUser(facebookToken) {
             }
         });
     });
+}
+
+function* getPlayerById(dbId) {
+    return (yield(cb) => {
+        db.Players.find({
+            _id: dbId
+        }, {
+            limit: 1
+        }).toArray(cb);
+    })[0];
 }
 
 function* makePlayer(facebookID, name) {
@@ -136,24 +134,42 @@ function* makeGame(player) {
     if (!game || game.length == 0) {
         var newGame = new db.Game(player._id, randomId());
         console.log("Created a new game with shortID " + newGame.shortId);
-        return yield(cb) => {
+        game = yield(cb) => {
             db.Games.insert(newGame, cb);
         }
-    } else {
-        return game;
+    }
+
+    game.status = "your turn";
+    game.gameUrl = "http://bit.ly/" + game.shortId;
+    for (var i = 0; i < games.length; i++) {
+        for (var j = 0; j < games[i].players.length; j++) {
+            games[i].players[j] = yield getPlayerById(games[i].players[j]);
+        }
     }
 }
 
 function* getGames(player) {
-    return (yield(cb) => {
-        db.Games.find({
+    var games = (yield(cb) => {
+        var games = db.Games.find({
             players: {
                 $in: [player._id]
             }
         }, {
             limit: 1
         }).toArray(cb);
+        if (games != null) {
+            games.map((game) => {
+                game.status = "your turn";
+                game.gameUrl = "http://bit.ly/" + game.shortId;
+            });
+        }
     });
+    for (var i = 0; i < games.length; i++) {
+        for (var j = 0; j < games[i].players.length; j++) {
+            games[i].players[j] = yield getPlayerById(games[i].players[j]);
+        }
+    }
+    return games;
 }
 
 function* getGameByShortId(shortId) {
