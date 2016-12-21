@@ -22,7 +22,11 @@
   },
   "homepage": "https://github.com/Hive-Labs/ConnectWhat#readme",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "express-yields": "^1.0.2",
+    "fb": "^1.1.1",
+    "mongodb": "^2.2.16",
     "socket.io": "^1.4.8"
   }
 }
