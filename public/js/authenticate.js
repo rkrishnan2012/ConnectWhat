@@ -1,9 +1,13 @@
+'use strict';
+
+//var {addPlayer} = require('./models/Player.js');
+
 window.fbAsyncInit = function () {
     FB.init({ appId: '1893670000921517', xfbml: true, version: 'v2.7' });
     FB.getLoginStatus(function (response) {
         if (response.status === 'connected') {
             console.log('Logged in.');
-            loadUserPage();
+            loadExistingUserPage();
         } else {
             login();
         }
@@ -22,8 +26,26 @@ window.fbAsyncInit = function () {
     fjs.parentNode.insertBefore(js, fjs);
 } (document, 'script', 'facebook-jssdk'));
 
-function loadUserPage(){
-    
+function isExistingUser(userId, userName){
+
+}
+
+function newUser(userID, userName){
+
+    $.post('/game', {
+        id: userID,
+        name: userName
+    },
+    function(data, status){
+        if(status === 'success')
+        {
+            console.log("Success: adding new user");
+        } 
+        else 
+        {
+            console.log("Failed: adding new user");
+        }
+    });
 }
 
 function login() {
@@ -32,13 +54,20 @@ function login() {
         console.log("Login!");
 
         FB.api('/me', {fields: 'name'}, function(response) {
-            console.log(response.name, response.id);
+            if( isExistingUser(response.id, response.name) ) {
+
+            } else {
+                newUser(response.id, response.name);
+            }
         });
+        
+        
 
         FB.api('/me', {edge: 'picture'}, function(response) {
             console.log("Picture: " + response);
         });
 
+        newUser(response.id, responsename);
     }, { scope: 'read_custom_friendlists' });
 }
 
@@ -54,4 +83,7 @@ function getFriendsList() {
             console.log(JSON.stringify(response))
         }
     });
+}
+
+function test() {
 }
