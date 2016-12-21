@@ -38,13 +38,18 @@ app.get('/api/v1/games', function* (req, res) {
     } else {
         yield db.connect();
         var fbUser = yield getFbUser(req.cookies.fbtoken);
+        if(!fbUser) {
+        	res.status(401).end("You are not authenticated.");
+        	return;
+        }
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var games = yield getGames(player);
         res.json(games.map((game)=>{
         	return {
-        		status: "OK",
+        		status: "pending-turn:" + player._id,
 	            gameUrl: "http://bit.ly/" + game.shortId,
-	            players: game.players
+	            players: game.players,
+	            scores: game.scores
         	}
         }));
     }
@@ -65,6 +70,7 @@ app.get('/join/:id', function*(req, res) {
                 res.redirect(404, "/?invalidGameId=true");
             } else {
                 game.players.push(player._id);
+                game.scores.push(0);
                 game = yield(cb) => {
                     db.Games.update({
                     	_id: game._id
