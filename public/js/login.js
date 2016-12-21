@@ -1,7 +1,7 @@
 function loadUserPage() {
     $(".loginStuff").hide("slow");
     setTimeout(function() {
-    	window.location = "/playeRroom.html";
+    	window.location = "/playerRoom.html";
     }, 500);
 
     FB.api('/me', {
