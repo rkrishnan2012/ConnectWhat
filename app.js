@@ -17,19 +17,36 @@ app.get('/', function(req, res) {
 });
 
 app.post('/api/v1/game', function*(req, res) {
-    if (!req.body.fbtoken) {
+    if (!req.cookies.fbtoken) {
         res.status(401).end();
     } else {
         yield db.connect();
-        var fbUser = yield getFbUser(req.body.fbtoken);
+        var fbUser = yield getFbUser(req.cookies.fbtoken);
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield makeGame(player);
-        console.log(game);
         res.json({
             status: "OK",
             gameUrl: "http://bit.ly/" + game.shortId,
             players: game.players
         });
+    }
+});
+
+app.get('/api/v1/games', function* (req, res) {
+    if (!req.cookies.fbtoken) {
+        res.status(401).end("You are not authenticated.");
+    } else {
+        yield db.connect();
+        var fbUser = yield getFbUser(req.cookies.fbtoken);
+        var player = yield makePlayer(fbUser.id, fbUser.name);
+        var games = yield getGames(player);
+        res.json(games.map((game)=>{
+        	return {
+        		status: "OK",
+	            gameUrl: "http://bit.ly/" + game.shortId,
+	            players: game.players
+        	}
+        }));
     }
 });
 
@@ -92,7 +109,21 @@ function* makePlayer(facebookID, name) {
 
 function* makeGame(player) {
     //	Try to find a game with you in it
-    var game = (yield(cb) => {
+    var game = (yield getGames(player))[0];
+    //	If game not found, create a new one.
+    if (!game || game.length == 0) {
+        var newGame = new db.Game(player._id, randomId());
+        console.log("Created a new game with shortID " + newGame.shortId);
+        return yield(cb) => {
+            db.Games.insert(newGame, cb);
+        }
+    } else {
+        return game;
+    }
+}
+
+function* getGames(player) {
+    return (yield(cb) => {
         db.Games.find({
             players: {
                 $in: [player._id]
@@ -100,16 +131,7 @@ function* makeGame(player) {
         }, {
             limit: 1
         }).toArray(cb);
-    })[0];
-    //	If game not found, create a new one.
-    if (!game || game.length == 0) {
-        var newGame = new db.Game(player._id, randomId());
-        return yield(cb) => {
-            db.Games.insert(newGame, cb);
-        }
-    } else {
-        return game;
-    }
+    });
 }
 
 function* getGameByShortId(shortId) {
