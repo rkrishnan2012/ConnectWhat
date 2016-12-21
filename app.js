@@ -16,6 +16,21 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html')
 });
 
+app.get('/api/v1/me', function* (req, res) {
+    if (!req.cookies.fbtoken) {
+        res.status(401).end("You are not authenticated.");
+    } else {
+        yield db.connect();
+        var fbUser = yield getFbUser(req.cookies.fbtoken);
+        if(!fbUser) {
+        	res.status(401).end("You are not authenticated.");
+        	return;
+        }
+        var player = yield makePlayer(fbUser.id, fbUser.name);
+        res.json(player);
+    }
+});
+
 app.post('/api/v1/game', function*(req, res) {
     if (!req.cookies.fbtoken) {
         res.status(401).end();
