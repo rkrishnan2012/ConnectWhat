@@ -157,17 +157,13 @@ function* getGames(player) {
         }, {
             limit: 1
         }).toArray(cb);
-        if (games != null) {
-            games.map((game) => {
-                game.status = "your turn";
-                game.gameUrl = "http://bit.ly/" + game.shortId;
-                return game;
-            });
-        }
+		return games;
     });
     for (var i = 0; i < games.length; i++) {
         for (var j = 0; j < games[i].players.length; j++) {
             games[i].players[j] = yield getPlayerById(games[i].players[j]);
+            games[i].status = "your turn";
+            games[i].gameUrl = "http://bit.ly/" + games[i].shortId;
         }
     }
     return games;
