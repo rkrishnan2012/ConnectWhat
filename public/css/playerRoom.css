@@ -75,7 +75,7 @@ body {
     width: 375px;
     height: 60px;
     padding-top: 10px;
-    padding-left: 10px;
+    text-align: center;
 }
 .overlay {
     text-align: center;
