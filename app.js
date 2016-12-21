@@ -42,7 +42,8 @@ app.post('/api/v1/game', function*(req, res) {
         res.json({
             status: "OK",
             gameUrl: "http://bit.ly/" + game.shortId,
-            players: game.players
+            players: game.players,
+            scores: game.scores
         });
     }
 });
@@ -61,7 +62,7 @@ app.get('/api/v1/games', function* (req, res) {
         var games = yield getGames(player);
         res.json(games.map((game)=>{
         	return {
-        		status: "pending-turn:" + player._id,
+        		status: "your turn",
 	            gameUrl: "http://bit.ly/" + game.shortId,
 	            players: game.players,
 	            scores: game.scores
