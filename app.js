@@ -161,6 +161,7 @@ function* getGames(player) {
             games.map((game) => {
                 game.status = "your turn";
                 game.gameUrl = "http://bit.ly/" + game.shortId;
+                return game;
             });
         }
     });
