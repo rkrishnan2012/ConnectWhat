@@ -8,11 +8,12 @@ body {
 .appText {
     color: white;
     opacity: .6;
-    font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+    font-family: Gotham-Light;
     font-size: 24px;
     padding-left: 10px;
     padding-top: 10px;
 }
+
 .versusText{
     font-family: 'Gotham-Light';
     color: white;
@@ -27,20 +28,12 @@ body {
     margin-top: 100px;
 }
 .circle1 {
-	border-radius: 50%;
-    width: 200px;
-    height: 200px;
-    border: 6px solid #29a468;
-    float: left;
-    background-size: contain;
+    margin-right: 10px;
+    display: none;
 }
 .circle2 {
-	border-radius: 50%;
-    width: 200px;
-    height: 200px;
-    border: 6px solid #29a468;
-    float: right;
-    background-size: contain;
+	margin-left: 10px;
+    display: none;
 }
 .infoText {
     font-family: 'Gotham-Light';
@@ -65,7 +58,7 @@ body {
 	cursor: pointer;
 }
 .gameStatus{
-	color: white;
+	color: #b3b2b2;
     font-size: 30px;
     font-family: 'Gotham-Light';
     margin-left: auto;
@@ -76,8 +69,19 @@ body {
     height: 60px;
     padding-top: 10px;
     text-align: center;
+    line-height: 35px;
 }
-.overlay {
+
+.gameStatus.ready{
+    color: white;
+}
+
+.gameStatus.ready:hover{
+    background-color: #29a468;
+    cursor: pointer;
+}
+
+.gameChooseOverlay {
     text-align: center;
     margin: auto;
     width: 500px;

@@ -10,7 +10,7 @@ function Game(ownerPlayerId, shortId) {
   this.players = [ownerPlayerId];
   this.startDate = new Date();
   this.endDate = null;
-  this.scores = [0];
+  this.scores = [];
 }
 
 module.exports = {
