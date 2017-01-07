@@ -1,7 +1,12 @@
 function loadUserPage() {
     $(".loginStuff").hide("slow");
+
     setTimeout(function() {
-    	window.location = "/playerRoom.html";
+        if(qs("joinId")) {
+            window.location = "/join/" + qs("joinId");
+        } else {
+            window.location = "/playerRoom.html";
+        }
     }, 500);
 
     FB.api('/me', {
@@ -18,7 +23,7 @@ function loadUserPage() {
 }
 
 function needsLogin() {
-	$(".loginStuff").show("slow");
+    $(".loginStuff").show("slow");
 }
 
 function login() {
@@ -41,4 +46,10 @@ function getFriendsList() {
             console.log(JSON.stringify(response))
         }
     });
+}
+
+qs = function(key) {
+    key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+    var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
+    return match && decodeURIComponent(match[1].replace(/\+/g, " "));
 }

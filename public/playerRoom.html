@@ -13,23 +13,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
   </head>
   <body>
-    <div class="appText">ConnectWhat</div>
-    <div class ="gameChooseOverlay">
+    <div class="appText">Connect<b>What</b></div>
+    <div id="dotsBkg"></div>
+    <div id="gameChooseOverlay" class ="gameChooseOverlay">
       <div class="circleset">
-        <svg class="circle1" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
+        <svg class="circle1 circle" viewBox="0 0 210 210" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
           <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" fill="none" stroke-dasharray="988.00 988.00"
           stroke-dashoffset="988.00"></path>
         </svg>
-        <svg class="circle2" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
+        <svg class="circle2 circle" viewBox="0 0 210 210" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
           <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" fill="none" stroke-dasharray="988.00 988.00"
           stroke-dashoffset="988.00"></path>
         </svg>
       </div>
+      <div class="infoText"></div>
+      <div class="subInfoText"></div>
       <div class="inviteLink">&nbsp;</div>
-      <div class="infoText">Share the link above to invite your friend to this game.</div>
+      <table class="wordsTable">
+        <tbody>
+        </tbody>
+      </table>
       <div class="gameStatus waiting">WAITING FOR PLAYERS</div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <p class="waitingForResult">Niceee, the monkeys are finding the relation between those topics. Hold your horses.</p>
+    <table class="definitionTable">
+      <tbody>
+        <tr>
+          <td class="word1">Word1</td>
+          <td class="word2">Word2</td>
+        </tr>
+        <tr>
+          <td class="definition1">stuff1</td>
+          <td class="definition2">stuff2</td>
+        </tr>
+      </tbody>
+    </table>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.particleground.min.js"></script>
   </body>
 </html>
