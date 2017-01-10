@@ -14,6 +14,7 @@ window.fbAsyncInit = function() {
         fb = response;
         if (response.status === 'connected') {
             document.cookie = "fbtoken=" + fb.authResponse.accessToken;
+            document.cookie = "fbid=" + fb.authResponse.userID;
             loadUserPage();
         } else {
             needsLogin();

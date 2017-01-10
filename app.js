@@ -18,6 +18,7 @@ app.get('/', function(req, res) {
 app.get('/reset', function*(req, res) {
     yield db.connect();
     db.Games.remove({});
+    db.Players.remove({});
     res.redirect("/");
 });
 app.get('/api/v1/me', function*(req, res) {
@@ -67,13 +68,12 @@ app.get('/join/:id', function*(req, res) {
             } else {
                 var repeats = 0;
                 for (var i = 0; i < game.players.length; i++) {
-                    if (game.players[i] == player._id) {
-                        console.log("REPEAT!");
+                    if (game.players[i].toString() == player._id.toString()) {
                         repeats++;
                     }
                 }
                 if (repeats == 0) {
-                    game.players.push(player._id.toString());
+                    game.players.push(player._id);
                     yield(cb) => {
                         db.Games.update({
                             _id: game._id
@@ -101,6 +101,7 @@ function* getFbUser(facebookToken) {
 }
 
 function* getPlayerById(dbId) {
+    console.log(dbId);
     return (yield(cb) => {
         db.Players.find({
             _id: dbId
@@ -119,9 +120,10 @@ function* makePlayer(facebookID, name) {
         }).toArray(cb);
     })[0];
     if (!player || player.length == 0) {
-        return yield(cb) => {
+        yield(cb) => {
             db.Players.insert(new db.Player(facebookID, name), cb);
         }
+        return (yield makePlayer(facebookID, name));
     } else {
         return player;
     }
@@ -134,15 +136,13 @@ function* makeGame(player) {
     if (!game || game.length == 0) {
         var newGame = new db.Game(player._id, randomId());
         console.log("Created a new game with shortID " + newGame.shortId);
-        game = (yield(cb) => {
+        (yield(cb) => {
             db.Games.insert(newGame, cb);
-        }).ops[0];
+        });
+        return (yield makeGame(player));
     }
     game.status = "your turn";
     game.gameUrl = "http://localhost:3000/join/" + game.shortId;
-    for (var j = 0; j < game.players.length; j++) {
-        game.players[j] = yield getPlayerById(game.players[j]);
-    }
     return game;
 }
 
@@ -195,7 +195,7 @@ io.on('connection', function(socket) {
             var fbUser = yield getFbUser(data.fbtoken);
             var player = yield makePlayer(fbUser.id, fbUser.name);
             var game = yield makeGame(player);
-            console.log("Player joined " + game.shortId);
+            console.log(fbUser.name + " joined " + game.shortId);
             socket.join(game.shortId);
             io.to(game.shortId).emit('game', game);
         }
@@ -234,7 +234,7 @@ io.on('connection', function(socket) {
         var game = yield getGameByShortId(data.shortId);
         game.words = game.words || [];
         for (var i = 0; i < game.players.length; i++) {
-            if (game.players[i] != player._id) {
+            if (game.players[i].toString() != player._id.toString()) {
                 game.words[i] = [data.word];
                 yield(cb) => {
                     db.Games.update({
@@ -252,7 +252,6 @@ io.on('connection', function(socket) {
                         for (var i = 0; i < 12; i++) {
                             words.push(body.endNodes[i]);
                         }
-                        console.log("Picking words 2!");
                         socket.emit('pickWord2', words);
                     }
 
@@ -265,30 +264,59 @@ io.on('connection', function(socket) {
         var fbUser = yield getFbUser(data.fbtoken);
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield getGameByShortId(data.shortId);
+        console.log(game);
         game.words = game.words || [];
         for (var i = 0; i < game.players.length; i++) {
-            if (game.players[i] != player._id) {
-                console.log("Player " + i + "'s words are chosen.");
-                game.words[i].push(data.word);
-                var allChosen = true;
+            if (game.players[i].toString() != player._id.toString()) {
+                game.words[i][1] = data.word;
+                var allChosen = game.words.length == game.players.length;
                 for (var k = 0; k < game.words.length; k++) {
                     if (game.words[k].length != 2) allChosen = false;
                 }
-                if(allChosen) {
+                if (allChosen) {
                     game.status = "started";
                 }
+
                 yield(cb) => {
                     db.Games.update({
                         _id: game._id
                     }, game, cb);
                 }
+
                 if (allChosen) {
-                    for (var j = 0; j < games[i].players.length; j++) {
+                    for (var j = 0; j < game.players.length; j++) {
                         game.players[j] = yield getPlayerById(game.players[j]);
-                        game.status = "started";
-                        game.gameUrl = "http://localhost:3000/join/" + game.shortId;
                     }
-                    io.to(game.shortId).emit("wordsChosen", game);
+                    console.log("All players have chosen their words for " + game.shortId);
+                    //  Make a list of words to lookup definitions for
+                    lookups = game.words.reduce(function(a, b) {
+                        return a.concat(b);
+                    }, []);
+                    console.log(JSON.stringify(lookups));
+                    request.post('http://localhost:1250/api/lookup', {
+                        form: {
+                            terms: JSON.stringify(lookups)
+                        }
+                    }, function(err, resp, body) {
+                        if (body) {
+                            var body = JSON.parse(resp.body).result;
+                            for(var i = 0; i < game.words.length; i++) {
+                                game.words[i][0] = {
+                                    word: game.words[i][0],
+                                    longSummary: body[game.words[i][0]].longSummary
+                                };
+                                game.words[i][1] = {
+                                    word: game.words[i][1],
+                                    longSummary: body[game.words[i][1]].longSummary
+                                };
+                            }
+                        }
+                        console.log(game);
+                        io.to(game.shortId).emit("wordsChosen", game);
+                    });
+                } else {
+                    console.log("not all have choesn:");
+                    console.log(game);
                 }
                 break;
             }

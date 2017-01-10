@@ -1,17 +1,16 @@
 var socket;
 var shortId;
+var myId;
+var pg;
 
 function needsLogin() {
     window.location = "/";
 }
 
 function loadUserPage() {
-    particleground(document.getElementById('dotsBkg'), {
+    pg = particleground(document.getElementById('dotsBkg'), {
         dotColor: 'rgba(41, 164, 104, 0.10)',
         lineColor: 'rgba(41, 164, 104, 0.05)'
-    });
-    getFbProPicUrl("me", function(url) {
-        animateCircle('circle1', url);
     });
     socket = io('/');
     socket.on('connect', function() {
@@ -24,10 +23,13 @@ function loadUserPage() {
         $(".infoText").text("Share the link below to invite your friend to this game.");
         $(".inviteLink").text(game.gameUrl);
         shortId = game.shortId;
+        getFbProPicUrl(game.players[0].fbid, function(url) {
+            animateCircle('circle1', url);
+        });
         if (game.players.length > 1) {
-            getFbProPicUrl("me", function(url) {
+            getFbProPicUrl(game.players[1].fbid, function(url) {
                 animateCircle('circle2', url);
-                setTimeout(readyToStart, 2000);
+                readyToStart();
             });
         }
     });
@@ -36,10 +38,39 @@ function loadUserPage() {
         pickWordsState(words);
     });
     socket.on('wordsChosen', function(game) {
-        console.log(game);
-        //$(".definitionTable .word1").text(words[0])
+        wordsChosen(game);
     });
     socket.on('disconnect', function() {});
+}
+
+function wordsChosen(game) {
+    console.log(game);
+    var myid = getCookie("fbid");
+    for(var i = 0; i < game.players.length; i++) {
+        if(game.players[i].fbid == myid) {
+            $(".waitingForResult").hide("slow");
+            $(".definitionTable").show();
+            $(".gameTimer").show();
+            $(".gameTimer .timer").text("30");
+            pg.destroy();
+            var j = 30;
+            var timerid;
+            timerid = setInterval(function() {
+                j--;
+                $(".gameTimer .timer").text(j);
+                if(j == 0) {
+                    window.clearInterval(timerid);
+                    $(".gameTimer").hide();
+                    $(".definitionTable").addClass("hidden");
+                }
+            }, 1000);
+            $(".word1").text(game.words[i][0].word);
+            $(".word2").text(game.words[i][1].word);
+            $(".definition1").text(game.words[i][0].longSummary);
+            $(".definition2").text(game.words[i][1].longSummary);
+            break;
+        }
+    }
 }
 
 function readyToStart() {
@@ -173,7 +204,7 @@ function setImageCircle(svgClassName, imageUrl) {
     var path = $('.' + svgClassName + ' path');
     var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     var pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-    pattern.setAttribute("id", "img1");
+    pattern.setAttribute("id", svgClassName);
     pattern.setAttribute("patternUnits", "userSpaceOnUse");
     pattern.setAttribute("height", "200");
     pattern.setAttribute("width", "200");
@@ -190,13 +221,9 @@ function setImageCircle(svgClassName, imageUrl) {
 }
 
 function showImageCircle(svgClassName) {
-    document.querySelector('.' + svgClassName + ' path').setAttribute("fill", "url(#img1)");
+    document.querySelector('.' + svgClassName + ' path').setAttribute("fill", "url(#" + svgClassName + ")");
 }
 
 function getFbProPicUrl(id, callback) {
-    FB.api('/' + id, {
-        fields: 'name'
-    }, function(response) {
-        callback("https://graph.facebook.com/" + response.id + "/picture?type=large&w‌​idth=500&height=500");
-    });
+    callback("https://graph.facebook.com/" + id + "/picture?type=large&w‌​idth=300&height=300");
 }

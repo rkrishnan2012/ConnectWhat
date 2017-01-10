@@ -17,10 +17,6 @@ function* connect() {
 
         module.exports.Players = module.exports.db.collection(PlayerModel.name);
         module.exports.Player = PlayerModel.constructor;
-
-        console.log("MongoClient connected to " + dbURI);
-    } else {
-        console.log("MongoClient already connected to " + dbURI);
     }
 }
 
