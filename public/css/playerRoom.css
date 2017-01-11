@@ -163,6 +163,16 @@ body {
     display: none;
 }
 
+.waitingForResult.win {
+    color: #29a468;
+    font-weight: bold;
+}
+
+.waitingForResult.loss {
+    color: #b5c15e;
+    font-weight: bold;
+}
+
 .definitionTable {
     display: none;
     margin-top: 20px;
@@ -196,3 +206,111 @@ body {
     text-align: center;
     font-size: 20pt;
 }
+
+.treeViewContent {
+    height: calc(100vh - 300px);
+    width: 70vw;
+    float: left;
+}
+
+.treeViewContent .node {
+    cursor: pointer;
+}
+
+.node circle {
+  fill: #29a468;
+}
+
+.node circle:hover {
+  fill: #29a468;
+  opacity: .5;
+}
+
+.node text {
+    font-size: 14px;
+    color: white;
+    font-family: Gotham, 'Helvetica Neue', Helvetica, sans-serif;
+    fill: white;
+    text-transform: capitalize;
+}
+
+.node--internal circle {
+  fill: #29a468;
+}
+
+.node--internal text {
+    font-size: 14px;
+    color: white;
+    font-family: Gotham, 'Helvetica Neue', Helvetica, sans-serif;
+    fill: white;
+    text-transform: capitalize;
+}
+
+.link {
+  fill: none;
+  stroke: #29a468;
+  stroke-width: 2.5px;
+  stroke-opacity: .2;
+}
+
+.rightInfoBox {
+    display: none;
+    margin-top: 20px;
+    color: #29a468;
+    width: 30vw;
+    font-size: 16pt;
+    background-color: rgb(33, 32, 33);
+    float: right;
+    padding-bottom: 50px;
+}
+
+.rightInfoBox .instruction{
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 18pt;
+}
+
+.rightInfoBox .instruction.correct{
+    color: #29a468;
+    font-weight: bold;
+}
+
+.rightInfoBox .instruction.wrong{
+    color: #b5c15e;
+    font-weight: bold;
+}
+
+.rightInfoBox .subtext {
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 10pt;
+}
+
+.rightInfoBox .betweenGame {
+    display: none;
+}
+
+
+.choicesTable {
+    display: none;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    text-transform: capitalize;
+    color: white;
+    font-size: 16pt;
+    background-color: rgb(33, 32, 33);
+}
+
+.choicesTable td{
+    padding:20px;
+    border: 1px solid #29a468;
+}
+
+.choicesTable tr:hover{
+    background-color: rgba(167, 255, 212, 0.18);
+    cursor: pointer;
+}
+

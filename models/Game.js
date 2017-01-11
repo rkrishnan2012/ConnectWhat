@@ -10,7 +10,11 @@ function Game(ownerPlayerId, shortId) {
   this.players = [ownerPlayerId];
   this.startDate = new Date();
   this.endDate = null;
+  this._paths = {};
+  this._turn = [];
   this.scores = [];
+  this.status = "pregame";
+  this.words = [];
 }
 
 module.exports = {

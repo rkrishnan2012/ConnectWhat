@@ -13,7 +13,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
   </head>
   <body>
-    <div class="appText">Connect<b>What</b></div>
+    <div class="appText">
+      Connect<b>What</b>
+    </div>
     <div id="dotsBkg"></div>
     <div id="gameChooseOverlay" class ="gameChooseOverlay">
       <div class="circleset">
@@ -40,17 +42,32 @@
     <table class="definitionTable">
       <tbody>
         <tr>
-          <td class="word word1">Word1</td>
-          <td class="word word2">Word2</td>
+          <td class="word word1"></td>
+          <td class="word word2"></td>
         </tr>
         <tr>
-          <td class="definition1">stuff1</td>
-          <td class="definition2">stuff2</td>
+          <td class="definition1"></td>
+          <td class="definition2"></td>
         </tr>
       </tbody>
     </table>
+    <div class="treeViewContent"></div>
+    <div class="rightInfoBox">
+      <div class="duringGame">
+        <p class="instruction">Pick the next word</p>
+        <p class="subtext">(hint: choose whatever is most relevant to previous word)</p>
+        <table class="choicesTable">
+        </table>
+      </div>
+      <div class="betweenGame">
+        <p class="instruction">Hold Tight...</p>
+      </div>
+    </div>
+  </body>
+  <footer>
+    <script src="/js/d3.v4.min.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/jquery.particleground.min.js"></script>
-  </body>
+  </footer>
 </html>
