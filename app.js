@@ -205,9 +205,9 @@ function* makePlayer(facebookID, name, isOffline, offlinePic) {
 function* makeGame(player) {
     var newGame = new db.Game(player._id, randomId());
     console.log(player.name + " created a new game with shortID " + newGame.shortId);
-    (yield(cb) => {
+    console.log((yield(cb) => {
         db.Games.insert(newGame, cb);
-    });
+    }));
     return newGame;
 }
 
@@ -217,8 +217,6 @@ function* getGames(player) {
             players: {
                 $in: [player._id]
             }
-        }, {
-            limit: 1
         }).toArray(cb);
         return games;
     });
@@ -445,7 +443,7 @@ io.on('connection', function(socket) {
                             io.to(game.shortId).emit("wordsChosen", game);
                             setTimeout(function() {
                                 io.to(game.shortId).emit("turn", game);
-                            }, 1000);
+                            }, 30000);
                         } else {
                             console.log("Body returned from bumblebee was null!");
                             console.log(resp);
@@ -505,8 +503,12 @@ io.on('connection', function(socket) {
                         _id: game._id
                     }, game, cb);
                 }
-                var game = sanitizeForPlayer(game);
-                io.to(game.shortId).emit("finished", game);
+                var game = yield sanitizeForPlayer(game);
+                socket.emit("done", game);
+                setTimeout(function() {
+                    console.log("Game " + game.shortId + " is finished!");
+                    io.to(game.shortId).emit("finished", game);    
+                }, 3000);
             } else {
                 if (game._turn[idx] == HOPS - 2) {
                     socket.emit("done", game);

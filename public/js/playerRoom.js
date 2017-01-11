@@ -120,8 +120,6 @@ function loadUserPage() {
 }
 
 function showTree(game) {
-    console.log(game);
-    $(".treeViewContent").children().remove()
     var myid = getCookie("fbid");
     var idx = 0;
     for (var i = 0; i < game.players.length; i++) {
@@ -129,10 +127,13 @@ function showTree(game) {
             idx = i;
         }
     }
+
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
     $(".definition2").text(game.words[idx][1].longSummary);
+    $(".treeViewContent").children().remove()
+
     var prev = {
         name: game._paths[idx][0][0],
         children: []
@@ -234,16 +235,28 @@ function showTree(game) {
 }
 
 function wordsChosen(game) {
-    console.log(game);
     var myid = getCookie("fbid");
+    var idx = 0;
+    for (var i = 0; i < game.players.length; i++) {
+        if (game.players[i].fbid == myid) {
+            idx = i;
+        }
+    }
+
+    $(".word1").text(game.words[idx][0].word);
+    $(".word2").text(game.words[idx][1].word);
+    $(".definition1").text(game.words[idx][0].longSummary);
+    $(".definition2").text(game.words[idx][1].longSummary);
+    $(".treeViewContent").children().remove()
+
     for (var i = 0; i < game.players.length; i++) {
         if (game.players[i].fbid == myid) {
             $(".waitingForResult").hide("slow");
-            $(".definitionTable").show();
             $(".gameTimer").show();
             $(".gameTimer .timer").text("30");
             pg.destroy();
             $("#dotsBkg").remove();
+            $(".definitionTable").show();
             var j = 30;
             timerid = setInterval(function() {
                 j--;
