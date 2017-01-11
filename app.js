@@ -8,16 +8,73 @@ const db = require('./models/db');
 const cookieParser = require('cookie-parser');
 const Promise = require('bluebird-co');
 const request = require("request");
+
+var HOPS = 10;
+
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
 app.use(bodyParser.json());
 app.use(cookieParser())
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html')
 });
-app.get('/reset', Promise.coroutine(function*(req, res) {
+app.get('/new', Promise.coroutine(function*(req, res) {
+    yield db.connect();
+    if (!req.cookies.fbtoken) {
+        console.log("Needs login!!");
+        res.redirect(302, '/?needsLogin=true&joinId=' + req.params.id);
+    } else {
+        var fbUser = yield getFbUser(req.cookies.fbtoken);
+        if (!fbUser) {
+            console.log("Needs login1!!");
+            res.redirect(401, '/?needsLogin=true&joinId=' + req.params.id);
+        } else {
+            console.log(fbUser.name + " trying to join " + req.params.id);
+            var player = yield makePlayer(fbUser.id, fbUser.name);
+            var game = yield makeGame(player);
+            if (!game) {
+                res.redirect(404, "/?invalidGameId=true");
+            } else {
+                var repeats = 0;
+                for (var i = 0; i < game.players.length; i++) {
+                    if (game.players[i].toString() == player._id.toString()) {
+                        repeats++;
+                    }
+                }
+                if (repeats == 0) {
+                    game.players.push(player._id);
+                    yield(cb) => {
+                        db.Games.update({
+                            _id: game._id
+                        }, game, cb);
+                    }
+                }
+                res.redirect("/playerRoom.html?joinId=" + game.shortId);
+            }
+        }
+    }
+}));
+app.post('/addOfflinePlayer', Promise.coroutine(function*(req, res) {
+    console.log(req.cookies);
+    if (!req.body.fbtoken) {
+        res.status(401).end("You are not authenticated.");
+    } else {
+        yield db.connect();
+        var fbUser = yield getFbUser(req.body.fbtoken);
+        if (!fbUser || fbUser.id.toString() != "10154534860608334") {
+            res.status(401).end("You are not authenticated. Only Rohit can do this :)");
+            return;
+        }
+        var player = yield makePlayer(req.body.id, req.body.name, true, req.body.picUrl);
+        res.json(player);
+    }
+}));
+app.get('/api/v1/reset', Promise.coroutine(function*(req, res) {
     yield db.connect();
     db.Games.remove({});
-    db.Players.remove({});
+    //db.Players.remove({});
     res.redirect("/");
 }));
 app.get('/api/v1/me', Promise.coroutine(function*(req, res) {
@@ -83,13 +140,27 @@ app.get('/join/:id', Promise.coroutine(function*(req, res) {
                         }, game, cb);
                     }
                 }
-                res.redirect("/");
+                res.redirect("/playerRoom.html?joinId=" + req.params.id);
             }
         }
     }
 }));
 
 function* getFbUser(facebookToken) {
+    var offline = (yield(cb) => {
+        db.Players.find({
+            fbid: facebookToken,
+            isOffline: true
+        }, {
+            limit: 1
+        }).toArray(cb);
+    })[0];
+    if (offline) {
+        return {
+            id: offline.fbid,
+            name: offline.name
+        };
+    }
     var fb = FB.withAccessToken(facebookToken);
     return (yield(cb) => {
         fb.api("/me", function(res) {
@@ -113,7 +184,7 @@ function* getPlayerById(dbId) {
     })[0];
 }
 
-function* makePlayer(facebookID, name) {
+function* makePlayer(facebookID, name, isOffline, offlinePic) {
     var player = (yield(cb) => {
         db.Players.find({
             fbid: facebookID
@@ -123,28 +194,21 @@ function* makePlayer(facebookID, name) {
     })[0];
     if (!player || player.length == 0) {
         yield(cb) => {
-            db.Players.insert(new db.Player(facebookID, name), cb);
+            db.Players.insert(new db.Player(facebookID, name, isOffline, offlinePic), cb);
         }
-        return (yield makePlayer(facebookID, name));
+        return (yield makePlayer(facebookID, name, isOffline, offlinePic));
     } else {
         return player;
     }
 }
 
 function* makeGame(player) {
-    //  Try to find a game with you in it
-    var game = (yield getGames(player))[0];
-    //  If game not found, create a new one.
-    if (!game || game.length == 0) {
-        var newGame = new db.Game(player._id, randomId());
-        console.log(player.name + " created a new game with shortID " + newGame.shortId);
-        (yield(cb) => {
-            db.Games.insert(newGame, cb);
-        });
-        return (yield makeGame(player));
-    }
-    game.gameUrl = "http://localhost:3000/join/" + game.shortId;
-    return game;
+    var newGame = new db.Game(player._id, randomId());
+    console.log(player.name + " created a new game with shortID " + newGame.shortId);
+    (yield(cb) => {
+        db.Games.insert(newGame, cb);
+    });
+    return newGame;
 }
 
 function* getGames(player) {
@@ -181,6 +245,19 @@ function randomId() {
     return s4() + s4();
 }
 
+function shuffle(array) {
+    var currentIndex = array.length,
+        temporaryValue, randomIndex;
+    while (0 !== currentIndex) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+    return array;
+}
+
 function* sanitizeForPlayer(game) {
     for (var j = 0; j < game.words.length; j++) {
         game.words[j][0] = {
@@ -194,31 +271,54 @@ function* sanitizeForPlayer(game) {
     }
     for (var j = 0; j < game._paths.length; j++) {
         game._paths[j] = game._paths[j].slice(0, game._turn[j] + 1);
+        if (game._paths[j].length > 0) {
+            game._paths[j][game._paths[j].length - 1] = shuffle(game._paths[j][game._paths[j].length - 1]);
+        }
     }
+
+
+
+
     delete game._lookups;
     for (var j = 0; j < game.players.length; j++) {
         game.players[j] = yield getPlayerById(game.players[j]);
     }
-
     return game;
 }
-
 io.on('connection', function(socket) {
+    socket.on('offlineAuth', Promise.coroutine(function*(data) {
+        yield db.connect();
+        var player = (yield(cb) => {
+            db.Players.find({
+                fbid: data.inviteCode,
+                isOffline: true
+            }, {
+                limit: 1
+            }).toArray(cb);
+        })[0];
+        if (player) {
+            socket.emit("offlineAuth", player);
+        } else {
+            socket.emit("offlineAuth", null);
+        }
+    }));
     socket.on('join', Promise.coroutine(function*(data) {
         if (!data.fbtoken) {
             console.log("NO cookie!");
+        } else if (!data.gameId) {
+            console.log("NO gameId!");
         } else {
             yield db.connect();
             var fbUser = yield getFbUser(data.fbtoken);
             var player = yield makePlayer(fbUser.id, fbUser.name);
-            var game = yield makeGame(player);
+            var game = yield getGameByShortId(data.gameId);
             console.log(fbUser.name + " joined websocket for " + game.shortId);
             socket.join(game.shortId);
             game = yield sanitizeForPlayer(game);
             if (game.status == "starting" || game.status == "started") {
                 socket.emit("wordsChosen", game);
                 socket.emit('turn', game);
-            } else if(game.status == "completed") {
+            } else if (game.status == "completed") {
                 socket.emit("finished", game);
             } else {
                 io.to(game.shortId).emit('game', game);
@@ -269,7 +369,8 @@ io.on('connection', function(socket) {
                 console.log(fbUser.name + " has chosen opponent's first word as " + data.word);
                 request.post('http://localhost:1250/api/topics', {
                     form: {
-                        startWord: data.word
+                        startWord: data.word,
+                        maxHops: 10
                     }
                 }, Promise.coroutine(function*(err, resp, body) {
                     console.log("Bumblebee returned subtopics of " + data.word);
@@ -366,18 +467,15 @@ io.on('connection', function(socket) {
         var fbUser = yield getFbUser(data.fbtoken);
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield getGameByShortId(data.shortId);
-
         var idx;
         for (var i = 0; i < game.players.length; i++) {
             if (game.players[i].toString() == player._id.toString()) {
                 idx = i;
             }
         }
-
-        if (game._turn[idx] < 3) {
+        if (game._turn[idx] < HOPS - 2) {
             if (game._paths[idx][game._turn[idx]][0] == data.word) {
-                game.scores[idx] += (3 - game._turn[idx]) * 10;
-
+                game.scores[idx] += ((HOPS - 2) - game._turn[idx]) * 10;
                 socket.emit("answer", {
                     turn: game._turn[idx],
                     correct: game._paths[idx][game._turn[idx]][0],
@@ -390,20 +488,16 @@ io.on('connection', function(socket) {
                     result: "incorrect"
                 });
             }
-
             game._turn[idx]++;
-
             yield(cb) => {
                 db.Games.update({
                     _id: game._id
                 }, game, cb);
             }
-
             var finished = true;
             for (var i = 0; i < game._turn.length; i++) {
-                if (game._turn[i] < 3) finished = false;
+                if (game._turn[i] < HOPS - 2) finished = false;
             }
-
             if (finished) {
                 game.status = "completed";
                 yield(cb) => {
@@ -411,9 +505,10 @@ io.on('connection', function(socket) {
                         _id: game._id
                     }, game, cb);
                 }
+                var game = sanitizeForPlayer(game);
                 io.to(game.shortId).emit("finished", game);
             } else {
-                if (game._turn[idx] == 3) {
+                if (game._turn[idx] == HOPS - 2) {
                     socket.emit("done", game);
                 } else {
                     game = yield sanitizeForPlayer(game);
@@ -425,7 +520,6 @@ io.on('connection', function(socket) {
         }
     }));
 });
-
 http.listen(3000, function() {
     console.log('yolo on port 3000');
 });

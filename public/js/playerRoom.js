@@ -9,6 +9,10 @@ function needsLogin() {
 }
 
 function loadUserPage() {
+    var gameId = qs("joinId");
+    if (!gameId) {
+        window.location = "/";
+    }
     pg = particleground(document.getElementById('dotsBkg'), {
         dotColor: 'rgba(41, 164, 104, 0.10)',
         lineColor: 'rgba(41, 164, 104, 0.05)'
@@ -16,19 +20,21 @@ function loadUserPage() {
     socket = io('/');
     socket.on('connect', function() {
         socket.emit('join', {
-            fbtoken: getCookie("fbtoken")
+            fbtoken: getCookie("fbtoken"),
+            gameId: gameId
         });
     });
     socket.on('game', function(game) {
         console.log(game);
         $(".infoText").text("Share the link below to invite your friend to this game.");
-        $(".inviteLink").text(game.gameUrl);
+        var link = (location.origin + "/join/" + game.shortId);
+        $(".inviteLink").text(link);
         shortId = game.shortId;
-        getFbProPicUrl(game.players[0].fbid, function(url) {
+        getFbProPicUrl(game.players[0], function(url) {
             animateCircle('circle1', url);
         });
         if (game.players.length > 1) {
-            getFbProPicUrl(game.players[1].fbid, function(url) {
+            getFbProPicUrl(game.players[1], function(url) {
                 animateCircle('circle2', url);
                 readyToStart();
             });
@@ -54,7 +60,6 @@ function loadUserPage() {
         $(".duringGame").show();
         showTree(game);
     });
-
     socket.on("answer", function(data) {
         if (data.result == "correct") {
             $(".betweenGame .instruction").removeClass("wrong");
@@ -66,7 +71,6 @@ function loadUserPage() {
             $(".betweenGame .instruction").text("Wrong :(");
         }
     });
-
     socket.on("done", function(data) {
         $(".gameTimer").hide();
         $(".definitionTable").hide();
@@ -75,46 +79,49 @@ function loadUserPage() {
         $(".waitingForResult").text("Ayeee. Now we wait for your opponent to finish.");
         $(".waitingForResult").show("slow");
     });
-
     socket.on("finished", function(game) {
         $(".gameTimer").hide();
         $(".definitionTable").hide();
         $(".treeViewContent").hide();
         $(".rightInfoBox").hide();
         $(".gameStatus").hide();
+        $("#dotsBkg").remove();
+        $(".gameChooseOverlay").hide();
+        $(".goBackButton").show();
+        $(".goBackButton").click(function() {
+            window.location = "/";
+        });
         var myIdx = 0;
         var highestIdx = 0;
         var highestScore = 0;
         for (var i = 0; i < game.players.length; i++) {
-            if(game.scores[i] > highestScore) {
+            if (game.players[i].fbid == getCookie("fbid")) {
+                myIdx = i;
+            }
+            if (game.scores[i] > highestScore) {
                 highestScore = game.scores[i];
                 highestIdx = i;
             }
-            if (game.players[i].fbid == myIdx) {
-                myIdx = i;
-            }
         }
-        if(highestIdx == myIdx) {
+
+        if (highestIdx == myIdx) {
             $(".waitingForResult").removeClass("loss");
             $(".waitingForResult").addClass("win");
-            $(".waitingForResult").text("You're god at this :D");    
+            $(".waitingForResult").text("You're god at this :D");
         } else {
             $(".waitingForResult").removeClass("win");
             $(".waitingForResult").addClass("loss");
-            $(".waitingForResult").text("Dang you lost, oh well :(");    
+            $(".waitingForResult").text("Dang you lost, oh well :(");
         }
-        
+
         $(".waitingForResult").show("slow");
     })
-
     socket.on('disconnect', function() {});
 }
 
 function showTree(game) {
     console.log(game);
-
     $(".treeViewContent").children().remove()
-
     var myid = getCookie("fbid");
     var idx = 0;
     for (var i = 0; i < game.players.length; i++) {
@@ -122,12 +129,10 @@ function showTree(game) {
             idx = i;
         }
     }
-
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
     $(".definition2").text(game.words[idx][1].longSummary);
-
     var prev = {
         name: game._paths[idx][0][0],
         children: []
@@ -238,7 +243,7 @@ function wordsChosen(game) {
             $(".gameTimer").show();
             $(".gameTimer .timer").text("30");
             pg.destroy();
-            $(".dotsBkg").remove();
+            $("#dotsBkg").remove();
             var j = 30;
             timerid = setInterval(function() {
                 j--;
@@ -401,6 +406,10 @@ function showImageCircle(svgClassName) {
     document.querySelector('.' + svgClassName + ' path').setAttribute("fill", "url(#" + svgClassName + ")");
 }
 
-function getFbProPicUrl(id, callback) {
-    callback("https://graph.facebook.com/" + id + "/picture?type=large&w‌​idth=300&height=300");
+function getFbProPicUrl(player, callback) {
+    if(!player.isOffline) {
+        callback("https://graph.facebook.com/" + player.fbid + "/picture?type=large&w‌​idth=300&height=300");    
+    } else {
+        callback(player.offlinePic);
+    }
 }

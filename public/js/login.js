@@ -1,29 +1,38 @@
+var socket;
+
 function loadUserPage() {
     $(".loginStuff").hide("slow");
 
     setTimeout(function() {
-        if(qs("joinId")) {
+        if (qs("joinId")) {
             window.location = "/join/" + qs("joinId");
         } else {
-            window.location = "/playerRoom.html";
+            loadGamesList();
         }
     }, 500);
-
-    FB.api('/me', {
-        fields: 'name'
-    }, function(response) {
-        console.log(response.name, response.id);
-    });
-
-    FB.api('/me', {
-        edge: 'picture'
-    }, function(response) {
-        console.log("Picture: " + JSON.stringify(response));
-    });
 }
 
 function needsLogin() {
-    $(".loginStuff").show("slow");
+    $(".loginStuff").css("display", "inline-block");
+    socket = io('/');
+    $(".inviteButton").click(function() {
+        var oldText = $(".inviteText").val();
+        if (oldText && oldText != "") {
+            $(".inviteText").val("");
+            socket.on("offlineAuth", function(data) {
+                if (data) {
+                    document.cookie = "fbtoken=" + oldText;
+                    document.cookie = "fbid=" + oldText;
+                    document.cookie = "fbname=" + data.name;
+                    document.cookie = "offlineAuth=" + oldText;
+                    window.location = "/";
+                }
+            });
+            socket.emit('offlineAuth', {
+                inviteCode: oldText
+            });
+        }
+    });
 }
 
 function login() {
@@ -46,10 +55,4 @@ function getFriendsList() {
             console.log(JSON.stringify(response))
         }
     });
-}
-
-qs = function(key) {
-    key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
-    var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
-    return match && decodeURIComponent(match[1].replace(/\+/g, " "));
 }

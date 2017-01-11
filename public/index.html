@@ -1,24 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
-  </head>
-  <body>
-    <div class="loginStuff">
-        <button onclick="login();" type="button" class="btn btn-primary facebookBtn">Continue with Facebook</button>
-        <p class="promiseText">We don't post anything to Facebook, we promise.</p>
-    </div>
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/login.css">
-    <script src="js/socket.io.min.js"></script>
-    <script src="//connect.facebook.net/en_US/all.js"></script>
-    <script src="/js/fbsdk.js"></script>
-    <script src="/js/login.js"></script>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-  </body>
-</html>                                                                                                       
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title></title>
+    </head>
+    <body>
+        <div class="loginStuff">
+            <div class="facebookSide">
+                <button onclick="login();" type="button" class="btn btn-primary facebookBtn">Continue with Facebook</button>
+                <p class="promiseText">We don't post anything to Facebook, we promise.</p>
+            </div>
+            <div class="inviteSide">
+                <input type="text" class="inviteText" placeholder="Or Invite Code"></input>
+                <button type="button" class="btn btn-primary inviteButton">Go</button>
+                <p class="promiseText">Seriously, you need a hookup.</p>
+            </div>
+        </div>
+        <div class="gamesList">
+            <h1 class="yourgames">Your Games</h1>
+            <table class="gamesListTable">
+                <tbody>
+                    <tr>
+                        <td class="header">Status</td>
+                        <td class="header">Players</td>
+                        <td class="header">Scores</td>
+                        <td class="header">Link</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="createNewBtn ready">Create New</div>
+        </div>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/css/login.css">
+        <link rel="stylesheet" href="/css/gameListRoom.css">
+        <script src="js/socket.io.min.js"></script>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/fbsdk.js"></script>
+        <script src="/js/login.js"></script>
+        <script src="/js/gamesList.js"></script>
+    </body>
+</html>
