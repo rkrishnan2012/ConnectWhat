@@ -71,12 +71,12 @@ app.post('/addOfflinePlayer', Promise.coroutine(function*(req, res) {
         res.json(player);
     }
 }));
-app.get('/api/v1/reset', Promise.coroutine(function*(req, res) {
-    yield db.connect();
-    db.Games.remove({});
-    //db.Players.remove({});
-    res.redirect("/");
-}));
+// app.get('/api/v1/reset', Promise.coroutine(function*(req, res) {
+//     yield db.connect();
+//     db.Games.remove({});
+//     //db.Players.remove({});
+//     res.redirect("/");
+// }));
 app.get('/api/v1/me', Promise.coroutine(function*(req, res) {
     if (!req.cookies.fbtoken) {
         res.status(401).end("You are not authenticated.");
