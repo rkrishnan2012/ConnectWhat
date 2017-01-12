@@ -289,7 +289,7 @@ function* sanitizeForPlayer(game) {
     return game;
 }
 
-function* socketPlayerPickSecondWord(data) {
+function* socketPlayerPickSecondWord(socket, data) {
     var fbUser = yield getFbUser(data.fbtoken);
     console.log(fbUser.name + "'s second word picked.");
     var player = yield makePlayer(fbUser.id, fbUser.name);
@@ -354,7 +354,7 @@ function* socketPlayerPickSecondWord(data) {
     }
 }
 
-function* socketPlayerPickFirstWord(data) {
+function* socketPlayerPickFirstWord(socket, data) {
     var fbUser = yield getFbUser(data.fbtoken);
     var player = yield makePlayer(fbUser.id, fbUser.name);
     var game = yield getGameByShortId(data.shortId);
@@ -393,7 +393,7 @@ function* socketPlayerPickFirstWord(data) {
             }
             yield saveGame(game);
             if (game.players.length == 1) {
-                Promise.coroutine(socketPlayerPickSecondWord)({
+                Promise.coroutine(socketPlayerPickSecondWord)(socket, {
                     fbtoken: data.fbtoken,
                     word: words[Math.floor(Math.random() * words.length)].title,
                     shortId: data.shortId
@@ -469,7 +469,7 @@ io.on('connection', function(socket) {
                         words.push(body[i]);
                     }
                     if (game.players.length == 1) {
-                        Promise.coroutine(socketPlayerPickFirstWord)({
+                        Promise.coroutine(socketPlayerPickFirstWord)(socket, {
                             fbtoken: data.fbtoken,
                             word: words[Math.floor(Math.random() * words.length)]._id,
                             shortId: data.shortId
@@ -482,9 +482,13 @@ io.on('connection', function(socket) {
         }
     }));
 
-    socket.on("doneWord1", Promise.coroutine(socketPlayerPickFirstWord));
+    socket.on("doneWord1", Promise.coroutine(function* (data){
+        yield socketPlayerPickFirstWord(socket, data);
+    }));
 
-    socket.on("doneWord2", Promise.coroutine(socketPlayerPickSecondWord));
+    socket.on("doneWord2", Promise.coroutine(function* (data){
+        yield socketPlayerPickSecondWord(socket, data);
+    }));
 
     socket.on("move", Promise.coroutine(function* data(data) {
         var fbUser = yield getFbUser(data.fbtoken);
@@ -544,6 +548,6 @@ io.on('connection', function(socket) {
     }));
 });
 
-http.listen(3000, function() {
-    console.log('yolo on port 3000');
+http.listen(80, function() {
+    console.log('yolo on port 80');
 });
