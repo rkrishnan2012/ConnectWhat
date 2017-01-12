@@ -16,14 +16,6 @@
     <div id="dotsBkg"></div>
     <div id="gameChooseOverlay" class ="gameChooseOverlay">
       <div class="circleset">
-        <svg class="circle1 circle" viewBox="0 0 210 210" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" fill="none" stroke-dasharray="988.00 988.00"
-          stroke-dashoffset="988.00"></path>
-        </svg>
-        <svg class="circle2 circle" viewBox="0 0 210 210" width="210px" height="210px" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" fill="none" stroke-dasharray="988.00 988.00"
-          stroke-dashoffset="988.00"></path>
-        </svg>
       </div>
       <div class="infoText"></div>
       <div class="subInfoText"></div>
@@ -61,6 +53,11 @@
         <p class="instruction">Hold Tight...</p>
       </div>
     </div>
+    <div class="rightPlayerBox">
+      <p class="instruction">Scores</p>
+      <div class="playerTable">
+      </div>
+    </div>
   </body>
   <footer>
     <script src="/js/d3.v4.min.js"></script>
@@ -70,5 +67,13 @@
     <script src="/js/fbsdk.js"></script>
     <script src="/js/playerRoom.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-44197942-2', 'auto');
+    ga('send', 'pageview');
+    </script>
   </footer>
 </html>

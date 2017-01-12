@@ -20,9 +20,10 @@ $(document).ready(function() {
     }
     $.getScript("//connect.facebook.net/en_US/all.js", function() {
         $(".facebookSide").show();
+        var appId = location.origin.indexOf("localhost") >= 0 ? "1960388977582952" : "1893670000921517";
         window.fbAsyncInit = function() {
             FB.init({
-                appId: '1893670000921517',
+                appId: appId,
                 xfbml: true,
                 version: 'v2.7'
             });

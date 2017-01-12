@@ -3,6 +3,7 @@ var shortId;
 var myId;
 var pg;
 var timerid;
+var currentGame;
 
 function needsLogin() {
     window.location = "/";
@@ -30,15 +31,8 @@ function loadUserPage() {
         var link = (location.origin + "/join/" + game.shortId);
         $(".inviteLink").text(link);
         shortId = game.shortId;
-        getFbProPicUrl(game.players[0], function(url) {
-            animateCircle('circle1', url);
-        });
-        if (game.players.length > 1) {
-            getFbProPicUrl(game.players[1], function(url) {
-                animateCircle('circle2', url);
-                readyToStart();
-            });
-        }
+        currentGame = game;
+        animateCircles(game.players);
     });
     socket.on('pickWord', function(words) {
         console.log("Pick words!");
@@ -48,17 +42,20 @@ function loadUserPage() {
         wordsChosen(game);
     });
     socket.on("turn", function(game) {
+        $(".gameChooseOverlay").hide();
         $(".gameTimer").hide();
         $(".definitionTable").addClass("disabled");
         $(".treeViewContent").show();
         $(".treeViewContent").show();
         $(".gameStatus").hide();
         $(".rightInfoBox").show();
+        $(".rightPlayerBox").show();
         $(".choicesTable").show();
         $("#dotsBkg").remove();
         $(".betweenGame").hide();
         $(".duringGame").show();
         showTree(game);
+        updateScores(game);
     });
     socket.on("answer", function(data) {
         if (data.result == "correct") {
@@ -76,6 +73,7 @@ function loadUserPage() {
         $(".definitionTable").hide();
         $(".treeViewContent").hide();
         $(".rightInfoBox").hide();
+        $(".rightPlayerBox").hide();
         $(".waitingForResult").text("Ayeee. Now we wait for your opponent to finish.");
         $(".waitingForResult").show("slow");
     });
@@ -84,6 +82,7 @@ function loadUserPage() {
         $(".definitionTable").hide();
         $(".treeViewContent").hide();
         $(".rightInfoBox").hide();
+        $(".rightPlayerBox").hide();
         $(".gameStatus").hide();
         $("#dotsBkg").remove();
         $(".gameChooseOverlay").hide();
@@ -103,7 +102,6 @@ function loadUserPage() {
                 highestIdx = i;
             }
         }
-
         if (highestIdx == myIdx) {
             $(".waitingForResult").removeClass("loss");
             $(".waitingForResult").addClass("win");
@@ -113,10 +111,33 @@ function loadUserPage() {
             $(".waitingForResult").addClass("loss");
             $(".waitingForResult").text("Dang you lost, oh well :(");
         }
-
         $(".waitingForResult").show("slow");
-    })
+    });
+
+    socket.on("score", function(game) {
+        updateScores(game);
+    });
+
     socket.on('disconnect', function() {});
+}
+
+function updateScores(game) {
+    if($(".rightPlayerBox").css("display") == "none") return;
+    for (var i = 0; i < game.players.length; i++) {
+        if ($("#playerScore" + i).length == 0) {
+            $(".playerTable").append(
+                $("<div class='playerScore' id='playerScore" + i + "'>")
+                .append($("<div class='playerCircle playerCircle" + i + "'>"))
+                .append($("<p class='name'>").text(game.players[i].name))
+                .append($("<p class='round'>").text("(Round " + game._turn[i] + " of 8)"))
+                .append($("<p class='points'>").text(game.scores[i] + " points"))
+                );
+            addCirclePlayerImageToDiv("playerCircle" + i, "playerSvg" + i, game.players[i], 50);
+        } else {
+            $("#playerScore" + i + " .round").text("(Round " + game._turn[i] + " of 8)");
+            $("#playerScore" + i + " .points").text(game.scores[i] + " points");
+        }
+    }
 }
 
 function showTree(game) {
@@ -127,13 +148,11 @@ function showTree(game) {
             idx = i;
         }
     }
-
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
     $(".definition2").text(game.words[idx][1].longSummary);
     $(".treeViewContent").children().remove()
-
     var prev = {
         name: game._paths[idx][0][0],
         children: []
@@ -242,18 +261,16 @@ function wordsChosen(game) {
             idx = i;
         }
     }
-
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
     $(".definition2").text(game.words[idx][1].longSummary);
     $(".treeViewContent").children().remove()
-
     for (var i = 0; i < game.players.length; i++) {
         if (game.players[i].fbid == myid) {
             $(".waitingForResult").hide("slow");
             $(".gameTimer").show();
-            $(".gameTimer .timer").text("30");
+            $(".gameTimer .timer").text("15");
             pg.destroy();
             $("#dotsBkg").remove();
             $(".definitionTable").show();
@@ -271,31 +288,43 @@ function wordsChosen(game) {
 }
 
 function readyToStart() {
-    $(".gameStatus").text("Ready to start!");
-    $(".gameStatus").removeClass("waiting");
-    $(".gameStatus").addClass("ready");
-    $(".gameStatus").click(function() {
-        socket.emit('ready', {
-            fbtoken: getCookie("fbtoken"),
-            shortId: shortId
+    if ($(".gameStatus").text() != "Ready to start!") {
+        $(".gameStatus").text("Ready to start!");
+        $(".gameStatus").removeClass("waiting");
+        $(".gameStatus").addClass("ready");
+        $(".gameStatus").click(function() {
+            socket.emit('ready', {
+                fbtoken: getCookie("fbtoken"),
+                shortId: shortId
+            });
+            $(".gameStatus").prop('onclick', null).off('click');
+            $(".gameStatus").text("Waiting on opponent");
+            $(".gameStatus").removeClass("ready");
+            $(".gameStatus").addClass("waiting");
         });
-        $(".gameStatus").prop('onclick', null).off('click');
-        $(".gameStatus").text("Waiting on opponent");
-        $(".gameStatus").removeClass("ready");
-        $(".gameStatus").addClass("waiting");
-    });
+    }
 }
 
 function pickWordsState(words, second) {
     console.log(words);
-    $(".circle1").attr("class", "circle circle1 smallSvg");
-    $(".circle2").attr("class", "circle circle2 smallSvg");
+    for (var i = 0; i < currentGame.players.length; i++) {
+        $(".circle" + i).attr("class", "circle circle" + i + " smallSvg");
+    }
+
+    var myid = getCookie("fbid");
+    var idx = 0;
+    for (var i = 0; i < currentGame.players.length; i++) {
+        if (currentGame.players[i].fbid == myid) {
+            idx = i;
+        }
+    }
     $(".circleset").addClass("small");
     $(".inviteLink").hide("slow");
+    var opposingPlayer = currentGame.players[(idx + 1) % currentGame.players.length].name.split(" ")[0];
     if (!second) {
-        $(".infoText").text("Choose a topic from the below list");
+        $(".infoText").html("Choose the first topic from the below list for " + opposingPlayer);
     } else {
-        $(".infoText").text("Choose another topic from the below list");
+        $(".infoText").html("Choose another topic from the below list for " + opposingPlayer);
     }
     $(".wordsTable").css("display", "inline-block");
     var tbody = $(".wordsTable").find('tbody');
@@ -361,7 +390,7 @@ function pickWordsState(words, second) {
                 }
             })
         } else {
-            $(".infoText").text("Choose a topic from the below list");
+            $(".infoText").html("Choose the first topic from the below list for " + opposingPlayer);
             $(".subInfoText").text("");
             $(".gameStatus").text("Select a topic");
             $(".gameStatus").removeClass("ready");
@@ -371,28 +400,42 @@ function pickWordsState(words, second) {
     });
 }
 
-function animateCircle(svgClassName, imageUrl) {
-    $("." + svgClassName).css("display", "inline");
-    var path = document.querySelector('.' + svgClassName + ' path');
-    var length = path.getTotalLength();
-    // Clear any previous transition
-    path.style.transition = path.style.WebkitTransition =
-        'none';
-    // Set up the starting positions
-    path.style.strokeDasharray = length + ' ' + length;
-    path.style.strokeDashoffset = length;
-    // Trigger a layout so styles are calculated & the browser
-    // picks up the starting position before animating
-    path.getBoundingClientRect();
-    // Define our transition
-    path.style.transition = path.style.WebkitTransition =
-        'stroke-dashoffset .5s ease-in-out';
-    // Go!
-    path.style.strokeDashoffset = '0';
-    setImageCircle(svgClassName, imageUrl);
-    setTimeout(function() {
+function animateCircles(players) {
+    $(".circleset").children().remove();
+    for (var i = 0; i < players.length; i++) {
+        var svgClassName = "circle" + i;
+        addCirclePlayerImageToDiv("circleset", svgClassName, players[i], 210);
+        if (players.length > 1) {
+            readyToStart();
+        }
+    }
+}
+
+function addCirclePlayerImageToDiv(divClassName, svgClassName, player, size) {
+    getFbProPicUrl(player, function(imageUrl) {
+        var circleCode = '<svg class="' + svgClassName + ' circle" viewBox="0 0 210 210" width="' + size + 'px" height="' + size + 'px" xmlns="http://www.w3.org/2000/svg">\
+                                        <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" \
+                                        fill="none" stroke-dasharray="988.00 988.00"stroke-dashoffset="988.00"></path></svg>';
+        $("." + divClassName).append(circleCode);
+        $("." + svgClassName).css("display", "inline");
+        var path = document.querySelector('.' + svgClassName + ' path');
+        var length = path.getTotalLength();
+        // Clear any previous transition
+        path.style.transition = path.style.WebkitTransition = 'none';
+        // Set up the starting positions
+        path.style.strokeDasharray = length + ' ' + length;
+        path.style.strokeDashoffset = length;
+        // Trigger a layout so styles are calculated & the browser
+        // picks up the starting position before animating
+        path.getBoundingClientRect();
+        // Define our transition
+        path.style.transition = path.style.WebkitTransition =
+            'stroke-dashoffset .5s ease-in-out';
+        // Go!
+        path.style.strokeDashoffset = '0';
+        setImageCircle(svgClassName, imageUrl);
         showImageCircle(svgClassName);
-    }, 2000);
+    });
 }
 
 function setImageCircle(svgClassName, imageUrl) {
@@ -406,8 +449,9 @@ function setImageCircle(svgClassName, imageUrl) {
     var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
     image.setAttribute("x", "0");
     image.setAttribute("y", "0");
-    image.setAttribute("height", "200");
-    image.setAttribute("width", "200");
+    image.setAttribute("height", "100%");
+    image.setAttribute("width", "100%");
+    image.setAttribute("preserveAspectRatio", "xMinYMin slice");
     image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", imageUrl);
     pattern.appendChild(image);
     defs.appendChild(pattern);
@@ -416,12 +460,14 @@ function setImageCircle(svgClassName, imageUrl) {
 }
 
 function showImageCircle(svgClassName) {
+    console.log('.' + svgClassName + ' path');
+    console.log(svgClassName);
     document.querySelector('.' + svgClassName + ' path').setAttribute("fill", "url(#" + svgClassName + ")");
 }
 
 function getFbProPicUrl(player, callback) {
-    if(!player.isOffline) {
-        callback("https://graph.facebook.com/" + player.fbid + "/picture?type=large&w‌​idth=300&height=300");    
+    if (!player.isOffline) {
+        callback("https://graph.facebook.com/" + player.fbid + "/picture?type=large&w‌​idth=300&height=300");
     } else {
         callback(player.offlinePic);
     }

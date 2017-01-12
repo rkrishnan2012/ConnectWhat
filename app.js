@@ -16,10 +16,12 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
-app.use(cookieParser())
+app.use(cookieParser());
+
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html')
 });
+
 app.get('/new', Promise.coroutine(function*(req, res) {
     yield db.connect();
     if (!req.cookies.fbtoken) {
@@ -45,11 +47,7 @@ app.get('/new', Promise.coroutine(function*(req, res) {
                 }
                 if (repeats == 0) {
                     game.players.push(player._id);
-                    yield(cb) => {
-                        db.Games.update({
-                            _id: game._id
-                        }, game, cb);
-                    }
+                    yield saveGame(game);
                 }
                 res.redirect("/playerRoom.html?joinId=" + game.shortId);
             }
@@ -71,12 +69,14 @@ app.post('/addOfflinePlayer', Promise.coroutine(function*(req, res) {
         res.json(player);
     }
 }));
+
 // app.get('/api/v1/reset', Promise.coroutine(function*(req, res) {
 //     yield db.connect();
 //     db.Games.remove({});
 //     //db.Players.remove({});
 //     res.redirect("/");
 // }));
+
 app.get('/api/v1/me', Promise.coroutine(function*(req, res) {
     if (!req.cookies.fbtoken) {
         res.status(401).end("You are not authenticated.");
@@ -134,17 +134,25 @@ app.get('/join/:id', Promise.coroutine(function*(req, res) {
                 }
                 if (repeats == 0) {
                     game.players.push(player._id);
-                    yield(cb) => {
-                        db.Games.update({
-                            _id: game._id
-                        }, game, cb);
-                    }
+                    yield saveGame(game);
                 }
                 res.redirect("/playerRoom.html?joinId=" + req.params.id);
             }
         }
     }
 }));
+
+function* saveGame(game) {
+    if (!game._lookups) {
+        throw new Exception("Saving a game without lookup field!");
+        return;
+    }
+    yield(cb) => {
+        db.Games.update({
+            _id: game._id
+        }, game, cb);
+    };
+}
 
 function* getFbUser(facebookToken) {
     var offline = (yield(cb) => {
@@ -274,9 +282,6 @@ function* sanitizeForPlayer(game) {
         }
     }
 
-
-
-
     delete game._lookups;
     for (var j = 0; j < game.players.length; j++) {
         game.players[j] = yield getPlayerById(game.players[j]);
@@ -333,11 +338,7 @@ io.on('connection', function(socket) {
             var game = yield getGameByShortId(data.shortId);
             if (game.scores.length < game.players.length) {
                 game.scores.push(0);
-                yield(cb) => {
-                    db.Games.update({
-                        _id: game._id
-                    }, game, cb);
-                }
+                yield saveGame(game);
             }
             if (game.scores.length == game.players.length) {
                 request.post('http://localhost:1250/api/topics', {}, function(error, response, body) {
@@ -356,46 +357,40 @@ io.on('connection', function(socket) {
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield getGameByShortId(data.shortId);
         game.words = game.words || [];
+        var idx;
         for (var i = 0; i < game.players.length; i++) {
-            if (game.players[i].toString() != player._id.toString()) {
-                game.words[i] = [data.word];
-                yield((cb) => {
-                    db.Games.update({
-                        _id: game._id
-                    }, game, cb);
-                });
-                console.log(fbUser.name + " has chosen opponent's first word as " + data.word);
-                request.post('http://localhost:1250/api/topics', {
-                    form: {
-                        startWord: data.word,
-                        maxHops: 10
-                    }
-                }, Promise.coroutine(function*(err, resp, body) {
-                    console.log("Bumblebee returned subtopics of " + data.word);
-                    if (err) console.log(err);
-                    if (body) {
-                        game = yield getGameByShortId(data.shortId);
-                        game._paths = game._paths || {};
-                        var body = JSON.parse(resp.body);
-                        var words = [];
-                        for (var i = 0; i < 12; i++) {
-                            words.push(body.endNodes[i]);
-                            game._paths[body.endNodes[i].title] = body.paths[i];
-                        }
-                        yield((cb) => {
-                            db.Games.update({
-                                _id: game._id
-                            }, game, cb);
-                        });
-                        socket.emit('pickWord2', words);
-                    } else {
-                        console.log("Body returned from bumblebee was null!");
-                        console.log(resp);
-                    }
-                }));
-                break;
+            if (game.players[i].toString() == player._id.toString()) {
+                idx = i;
             }
         }
+        var otherPlayerIdx = (idx + 1) % game.players.length;
+        game.words[otherPlayerIdx] = [data.word];
+        yield saveGame(game);
+        console.log(fbUser.name + " has chosen opponent's first word as " + data.word);
+        request.post('http://localhost:1250/api/topics', {
+            form: {
+                startWord: data.word,
+                maxHops: 10
+            }
+        }, Promise.coroutine(function*(err, resp, body) {
+            console.log("Bumblebee returned subtopics of " + data.word);
+            if (err) console.log(err);
+            if (body) {
+                game = yield getGameByShortId(data.shortId);
+                game._paths = game._paths || {};
+                var body = JSON.parse(resp.body);
+                var words = [];
+                for (var i = 0; i < 12; i++) {
+                    words.push(body.endNodes[i]);
+                    game._paths[body.endNodes[i].title] = body.paths[i];
+                }
+                yield saveGame(game);
+                socket.emit('pickWord2', words);
+            } else {
+                console.log("Body returned from bumblebee was null!");
+                console.log(resp);
+            }
+        }));
     }));
     socket.on("doneWord2", Promise.coroutine(function* data(data) {
         var fbUser = yield getFbUser(data.fbtoken);
@@ -403,62 +398,58 @@ io.on('connection', function(socket) {
         var player = yield makePlayer(fbUser.id, fbUser.name);
         var game = yield getGameByShortId(data.shortId);
         game.words = game.words || [];
+        var idx;
         for (var i = 0; i < game.players.length; i++) {
-            if (game.players[i].toString() != player._id.toString()) {
-                game.words[i][1] = data.word;
-                var allChosen = game.words.length == game.players.length;
-                for (var k = 0; k < game.words.length; k++) {
-                    if (!game.words[k] || game.words[k].length != 2) allChosen = false;
-                }
-                if (allChosen) {
-                    game.status = "started";
-                    game._turn = [1, 1];
-                    game._paths = [game._paths[game.words[0][1]], game._paths[game.words[1][1]]];
-                    console.log("All players have chosen their words for " + game.shortId);
-                    //  Make a list of words to lookup definitions for
-                    lookups = game.words.reduce(function(a, b) {
-                        return a.concat(b);
-                    }, []);
-                    yield(cb) => {
-                        db.Games.update({
-                            _id: game._id
-                        }, game, cb);
-                    }
-                    request.post('http://localhost:1250/api/lookup', {
-                        form: {
-                            terms: JSON.stringify(lookups)
-                        }
-                    }, Promise.coroutine(function*(err, resp, body) {
-                        if (body) {
-                            var body = JSON.parse(resp.body).result;
-                            //  Re-download game from db in case it has changed
-                            var game = yield getGameByShortId(data.shortId);
-                            game._lookups = body;
-                            yield(cb) => {
-                                db.Games.update({
-                                    _id: game._id
-                                }, game, cb);
-                            }
-                            game = yield sanitizeForPlayer(game);
-                            io.to(game.shortId).emit("wordsChosen", game);
-                            setTimeout(function() {
-                                io.to(game.shortId).emit("turn", game);
-                            }, 30000);
-                        } else {
-                            console.log("Body returned from bumblebee was null!");
-                            console.log(resp);
-                        }
-                    }));
-                } else {
-                    yield(cb) => {
-                        db.Games.update({
-                            _id: game._id
-                        }, game, cb);
-                    }
-                    console.log(fbUser.name + " has chosen opponent's second word as " + data.word);
-                }
-                break;
+            if (game.players[i].toString() == player._id.toString()) {
+                idx = i;
             }
+        }
+        var otherPlayerIdx = (idx + 1) % game.players.length;
+        game.words[otherPlayerIdx][1] = data.word;
+        var allChosen = game.words.length == game.players.length;
+        for (var k = 0; k < game.words.length; k++) {
+            if (!game.words[k] || game.words[k].length != 2) allChosen = false;
+        }
+        if (allChosen) {
+            game.status = "started";
+            game._turn = [];
+            var newPaths = [];
+            for(var i = 0; i < game.players.length; i++) {
+                game._turn.push(1);
+                newPaths.push(game._paths[game.words[i][1]]);
+            }
+            game._paths = newPaths;
+            
+            console.log("All players have chosen their words for " + game.shortId);
+            //  Make a list of words to lookup definitions for
+            lookups = game.words.reduce(function(a, b) {
+                return a.concat(b);
+            }, []);
+            yield saveGame(game);
+            request.post('http://localhost:1250/api/lookup', {
+                form: {
+                    terms: JSON.stringify(lookups)
+                }
+            }, Promise.coroutine(function*(err, resp, body) {
+                if (body) {
+                    var body = JSON.parse(resp.body).result;
+                    //  Re-download game from db in case it has changed
+                    var game = yield getGameByShortId(data.shortId);
+                    game._lookups = body;
+                    yield saveGame(game);
+                    game = yield sanitizeForPlayer(game);
+                    io.to(game.shortId).emit("wordsChosen", game);
+                    setTimeout(function() {
+                        io.to(game.shortId).emit("turn", game);
+                    }, 15000);
+                } else {
+                    console.log("Body returned from bumblebee was null!");
+                    console.log(resp);
+                }
+            }));
+        } else {
+            yield saveGame(game);
+            console.log(fbUser.name + " has chosen opponent's second word as " + data.word);
         }
     }));
     socket.on("move", Promise.coroutine(function* data(data) {
@@ -487,41 +478,38 @@ io.on('connection', function(socket) {
                 });
             }
             game._turn[idx]++;
-            yield(cb) => {
-                db.Games.update({
-                    _id: game._id
-                }, game, cb);
-            }
+            yield saveGame(game);
             var finished = true;
             for (var i = 0; i < game._turn.length; i++) {
                 if (game._turn[i] < HOPS - 2) finished = false;
             }
             if (finished) {
                 game.status = "completed";
-                yield(cb) => {
-                    db.Games.update({
-                        _id: game._id
-                    }, game, cb);
-                }
+                yield saveGame(game);
                 var game = yield sanitizeForPlayer(game);
                 socket.emit("done", game);
                 setTimeout(function() {
                     console.log("Game " + game.shortId + " is finished!");
-                    io.to(game.shortId).emit("finished", game);    
+                    io.to(game.shortId).emit("finished", game);
                 }, 3000);
             } else {
+                var tempgame = yield sanitizeForPlayer(game);
+                io.to(game.shortId).emit("score", tempgame);
+
                 if (game._turn[idx] == HOPS - 2) {
-                    socket.emit("done", game);
+                    socket.emit("done", tempgame);
                 } else {
-                    game = yield sanitizeForPlayer(game);
+                    console.log(tempgame);
                     setTimeout(function() {
-                        socket.emit("turn", game);
+                        console.log(tempgame);
+                        socket.emit("turn", tempgame);
                     }, 1000)
                 }
             }
         }
     }));
 });
+
 http.listen(3000, function() {
     console.log('yolo on port 3000');
 });
