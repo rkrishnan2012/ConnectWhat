@@ -33,6 +33,16 @@ function loadUserPage() {
         shortId = game.shortId;
         currentGame = game;
         animateCircles(game.players);
+
+        $(".playsolo").click(function() {
+            $(".waitingForResult").text("The monkeys are finding some words for you to connect. Hold your horses.");
+            $(".waitingForResult").show();
+            $(".gameChooseOverlay").hide();
+            socket.emit('ready', {
+                fbtoken: getCookie("fbtoken"),
+                shortId: shortId
+            });
+        });
     });
     socket.on('pickWord', function(words) {
         console.log("Pick words!");
@@ -48,6 +58,7 @@ function loadUserPage() {
         $(".treeViewContent").show();
         $(".treeViewContent").show();
         $(".gameStatus").hide();
+        $(".playsolo").hide();
         $(".rightInfoBox").show();
         $(".rightPlayerBox").show();
         $(".choicesTable").show();
@@ -84,6 +95,7 @@ function loadUserPage() {
         $(".rightInfoBox").hide();
         $(".rightPlayerBox").hide();
         $(".gameStatus").hide();
+        $(".playsolo").hide();
         $("#dotsBkg").remove();
         $(".gameChooseOverlay").hide();
         $(".goBackButton").show();
@@ -102,14 +114,20 @@ function loadUserPage() {
                 highestIdx = i;
             }
         }
-        if (highestIdx == myIdx) {
-            $(".waitingForResult").removeClass("loss");
-            $(".waitingForResult").addClass("win");
-            $(".waitingForResult").text("You're god at this :D");
+        if (game.players.length > 1) {
+            if (highestIdx == myIdx) {
+                $(".waitingForResult").removeClass("loss");
+                $(".waitingForResult").addClass("win");
+                $(".waitingForResult").text("You're god at this :D");
+            } else {
+                $(".waitingForResult").removeClass("win");
+                $(".waitingForResult").addClass("loss");
+                $(".waitingForResult").text("Dang you lost, oh well :(");
+            }
         } else {
-            $(".waitingForResult").removeClass("win");
-            $(".waitingForResult").addClass("loss");
-            $(".waitingForResult").text("Dang you lost, oh well :(");
+            $(".waitingForResult").removeClass("loss");
+                $(".waitingForResult").addClass("win");
+                $(".waitingForResult").text("You got " + game.scores[0] + " points!");
         }
         $(".waitingForResult").show("slow");
     });
@@ -122,7 +140,7 @@ function loadUserPage() {
 }
 
 function updateScores(game) {
-    if($(".rightPlayerBox").css("display") == "none") return;
+    if ($(".rightPlayerBox").css("display") == "none") return;
     for (var i = 0; i < game.players.length; i++) {
         if ($("#playerScore" + i).length == 0) {
             $(".playerTable").append(
@@ -131,7 +149,7 @@ function updateScores(game) {
                 .append($("<p class='name'>").text(game.players[i].name))
                 .append($("<p class='round'>").text("(Round " + game._turn[i] + " of 8)"))
                 .append($("<p class='points'>").text(game.scores[i] + " points"))
-                );
+            );
             addCirclePlayerImageToDiv("playerCircle" + i, "playerSvg" + i, game.players[i], 50);
         } else {
             $("#playerScore" + i + " .round").text("(Round " + game._turn[i] + " of 8)");
@@ -274,7 +292,7 @@ function wordsChosen(game) {
             pg.destroy();
             $("#dotsBkg").remove();
             $(".definitionTable").show();
-            var j = 30;
+            var j = 15;
             timerid = setInterval(function() {
                 j--;
                 $(".gameTimer .timer").text(j);
@@ -289,6 +307,7 @@ function wordsChosen(game) {
 
 function readyToStart() {
     if ($(".gameStatus").text() != "Ready to start!") {
+        $(".playsolo").hide();
         $(".gameStatus").text("Ready to start!");
         $(".gameStatus").removeClass("waiting");
         $(".gameStatus").addClass("ready");

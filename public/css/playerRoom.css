@@ -97,6 +97,16 @@ body {
     z-index: 10;
 }
 
+.playsolo {
+    color: #b3b2b2;
+    margin-top: 10px;
+    font-size: 12pt;
+}
+
+.playsolo:hover {
+    color: white;
+}
+
 #dotsBkg {
     width: 100vw;
     height: 100vh;
