@@ -4,18 +4,19 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title></title>
+        <title>ConnectWhat</title>
     </head>
     <body>
+        <div id="dotsBkg"></div>
+        <p class="connectWhatTitle middle">Connect<b><i>What</i></b></p>
         <div class="loginStuff">
             <div class="facebookSide">
-                <button onclick="login();" type="button" class="btn btn-primary facebookBtn">Continue with Facebook</button>
+                <div onclick="login();" class="facebookBtn">Continue with Facebook</div>
                 <p class="promiseText">We don't post anything to Facebook, we promise.</p>
             </div>
             <div class="inviteSide">
                 <input type="text" class="inviteText" placeholder="Or Invite Code"></input>
-                <button type="button" class="btn btn-primary inviteButton">Go</button>
-                <p class="promiseText">Seriously, you need a hookup.</p>
+                <div class="inviteButton">Go</div>
             </div>
         </div>
         <div class="gamesList">
@@ -42,6 +43,7 @@
         <script src="/js/fbsdk.js"></script>
         <script src="/js/login.js"></script>
         <script src="/js/gamesList.js"></script>
+        <script src="/js/jquery.particleground.min.js"></script>
         <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

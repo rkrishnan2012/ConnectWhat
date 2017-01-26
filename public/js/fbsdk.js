@@ -18,7 +18,8 @@ $(document).ready(function() {
         });
         return;
     }
-    $.getScript("//connect.facebook.net/en_US/all.js", function() {
+    $(".facebookSide").show();
+    $.getScript("//connect.facebook.net/en_US/all.js", function(data, err, resp) {
         $(".facebookSide").show();
         var appId = location.origin.indexOf("localhost") >= 0 ? "1960388977582952" : "1893670000921517";
         window.fbAsyncInit = function() {

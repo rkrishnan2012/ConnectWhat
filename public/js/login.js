@@ -1,8 +1,15 @@
 var socket;
 
+$(document).ready(function() {
+    pg = particleground(document.getElementById('dotsBkg'), {
+        dotColor: 'rgba(41, 164, 104, 0.10)',
+        lineColor: 'rgba(41, 164, 104, 0.05)'
+    });
+});
+
 function loadUserPage() {
     $(".loginStuff").hide("slow");
-
+    $(".connectWhatTitle").removeClass("middle");
     setTimeout(function() {
         if (qs("joinId")) {
             window.location = "/join/" + qs("joinId");
