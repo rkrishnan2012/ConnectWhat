@@ -15,8 +15,8 @@ function loadUserPage() {
         window.location = "/";
     }
     pg = particleground(document.getElementById('dotsBkg'), {
-        dotColor: 'rgba(41, 164, 104, 0.10)',
-        lineColor: 'rgba(41, 164, 104, 0.05)'
+        dotColor: 'rgba(255, 255, 255, 0.05)',
+        lineColor: 'rgba(255, 255, 255, 0.08)'
     });
     socket = io('/');
     socket.on('connect', function() {
@@ -176,6 +176,7 @@ function showTree(game) {
         children: []
     };
     var rootItem = prev;
+    $(".currentword").text(game._paths[idx][game._paths[idx].length - 2][0]);
     for (var i = 1; i < game._paths[idx].length; i++) {
         if (i == game._paths[idx].length - 1) {
             $(".choicesTable tbody").remove();
@@ -434,7 +435,7 @@ function animateCircles(players) {
 function addCirclePlayerImageToDiv(divClassName, svgClassName, player, size) {
     getFbProPicUrl(player, function(imageUrl) {
         var circleCode = '<svg class="' + svgClassName + ' circle" viewBox="0 0 210 210" width="' + size + 'px" height="' + size + 'px" xmlns="http://www.w3.org/2000/svg">\
-                                        <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#29a468" stroke-width="5" \
+                                        <path d="M5,105a100,100 0 1,0 200,0a100,100 0 1,0 -200,0" stroke="#19613e" stroke-width="5" \
                                         fill="none" stroke-dasharray="988.00 988.00"stroke-dashoffset="988.00"></path></svg>';
         $("." + divClassName).append(circleCode);
         $("." + svgClassName).css("display", "inline");
