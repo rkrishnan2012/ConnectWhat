@@ -321,6 +321,7 @@ function* playerPickSecondWord(socket, data) {
             if (body) {
                 var body = JSON.parse(resp.body).result;
                 var game = yield dbUtils.getGameByShortId(data.shortId);
+                console.log(body);
                 game._lookups = body;
                 console.log(body);
                 yield dbUtils.saveGame(game);

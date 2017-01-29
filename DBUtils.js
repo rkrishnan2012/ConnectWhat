@@ -126,13 +126,15 @@ module.exports.shuffle = function (array) {
 
 module.exports.sanitizeForPlayer = function*(game) {
     for (var j = 0; j < game.words.length; j++) {
+        var lookupWord = game._lookups[game.words[j][0]] || {};
         game.words[j][0] = {
             word: game.words[j][0],
-            longSummary: game._lookups[game.words[j][0]].longSummary
+            longSummary: lookupWord.longSummary
         };
+        lookupWord = game._lookups[game.words[j][1]] || {};
         game.words[j][1] = {
             word: game.words[j][1],
-            longSummary: game._lookups[game.words[j][1]].longSummary
+            longSummary: lookupWord.longSummary
         };
     }
     for (var j = 0; j < game._paths.length; j++) {

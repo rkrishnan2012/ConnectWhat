@@ -129,7 +129,7 @@ module.exports.GetJoinGameId = Promise.coroutine(function*(req, res) {
                 }
                 if (repeats == 0) {
                     game.players.push(player._id);
-                    yield saveGame(game);
+                    yield dbUtils.saveGame(game);
                 }
                 res.redirect("/playerRoom.html?joinId=" + req.params.id);
             }

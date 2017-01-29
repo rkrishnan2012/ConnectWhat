@@ -350,7 +350,8 @@ function pickWordsState(words, second) {
     $(".wordsTable tbody td").remove();
     for (var i = 0; i < words.length / 3; i++) {
         var tr = tbody.append($('<tr>'));
-        for (var j = 0; j < 3; j++) {
+        for (var j = 0; j < 3; j++) {            
+            if((3 * i + j) >= words.length) break;
             if (!second) {
                 tr.append($('<td class="">').attr('wordNum', 3 * i + j).text(words[3 * i + j].result.title));
             } else {
