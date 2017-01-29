@@ -5,6 +5,7 @@
 
 body {
 	background-color: #29a468;
+    font-family: "Gotham-Light"
 }
 .appText {
     color: white;
@@ -220,7 +221,7 @@ body {
 }
 
 .treeViewContent {
-    height: calc(100vh - 300px);
+    height: 100vh;
     width: 70vw;
     float: left;
 }
@@ -267,23 +268,30 @@ body {
   stroke-opacity: .2;
 }
 
+.rightDefinitionBox {
+    display: none;
+    color: #29a468;
+    width: 30vw;
+    max-width: 500px;
+    min-height: 300px;
+    float: right;
+}
+
 .rightInfoBox {
     display: none;
-    margin-top: 20px;
     color: #29a468;
     width: 30vw;
     max-width: 500px;
     font-size: 16pt;
-    background-color: rgba(33, 32, 33, 0.60);
     float: right;
     padding-bottom: 50px;
 }
 
 .rightInfoBox .instruction{
     color: white;
-    text-align: left;
+    text-align: center;
     margin-top: 10px;
-    font-size: 18pt;
+    font-size: 12pt;
     padding-left: 10px;
 }
 
@@ -308,6 +316,15 @@ body {
     display: none;
 }
 
+.rightPanel {
+    height: 100vh;
+    background-color: rgba(33, 32, 33, 0.60);
+    width: 30vw;
+    max-width: 500px;
+    float: right;
+    display: none;
+}
+
 .rightPlayerBox {
     display: none;
     margin-top: 0px;
@@ -315,7 +332,6 @@ body {
     width: 30vw;
     max-width: 500px;
     font-size: 16pt;
-    background-color: rgba(33, 32, 33, 0.60);
     float: right;
     padding-bottom: 50px;
 }
@@ -400,4 +416,11 @@ body {
     margin: 10px;
     float: left;
     height: 50px;
+}
+
+.connectingWords {
+    text-align: center;
+    color: white;
+    font-size: 12pt;
+    margin-top: 20px;
 }
