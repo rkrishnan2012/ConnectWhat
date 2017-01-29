@@ -57,7 +57,8 @@ body {
 
 .inviteLink {
 	font-family: 'Gotham-Light';
-    color: #29a468;
+    color: white;
+    opacity: .8;
     font-size: 20px;
     font-weight: bold;
     margin-top: 10px;
