@@ -60,7 +60,9 @@ function loadUserPage() {
         $(".gameStatus").hide();
         $(".playsolo").hide();
         $(".rightInfoBox").show();
+        $(".rightDefinitionBox").show();
         $(".rightPlayerBox").show();
+        $(".rightPanel").show();
         $(".choicesTable").show();
         $("#dotsBkg").remove();
         $(".betweenGame").hide();
@@ -84,7 +86,9 @@ function loadUserPage() {
         $(".definitionTable").hide();
         $(".treeViewContent").hide();
         $(".rightInfoBox").hide();
+        $(".rightDefinitionBox").hide();
         $(".rightPlayerBox").hide();
+        $(".rightPanel").hide();
         $(".waitingForResult").text("Ayeee. Now we wait for your opponent to finish.");
         $(".waitingForResult").show("slow");
     });
@@ -93,7 +97,9 @@ function loadUserPage() {
         $(".definitionTable").hide();
         $(".treeViewContent").hide();
         $(".rightInfoBox").hide();
+        $(".rightDefinitionBox").hide();
         $(".rightPlayerBox").hide();
+        $(".rightPanel").hide();
         $(".gameStatus").hide();
         $(".playsolo").hide();
         $("#dotsBkg").remove();
@@ -166,6 +172,7 @@ function showTree(game) {
             idx = i;
         }
     }
+    $(".definitionTable").hide();
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
@@ -215,7 +222,7 @@ function showTree(game) {
     }
     console.log(rootItem);
     var width = $(".treeViewContent").width();
-    var height = $("html").height() - $(".definitionTable").height();
+    var height = $("html").height();
     var svg = d3.select(".treeViewContent").append("svg");
     svg.attr('width', width);
     svg.attr('height', height);
