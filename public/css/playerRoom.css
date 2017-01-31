@@ -9,7 +9,7 @@ body {
 }
 .appText {
     color: white;
-    opacity: .9;
+    opacity: .6;
     font-family: Gotham-Light;
     font-size: 24px;
     padding-left: 10px;
@@ -58,8 +58,7 @@ body {
 
 .inviteLink {
 	font-family: 'Gotham-Light';
-    color: white;
-    opacity: .8;
+    color: #29a468;
     font-size: 20px;
     font-weight: bold;
     margin-top: 10px;
@@ -68,13 +67,13 @@ body {
 	cursor: pointer;
 }
 .gameStatus{
-	color: white;
+	color: #b3b2b2;
     font-size: 30px;
     font-family: 'Gotham-Light';
     margin-left: auto;
     margin-right: auto;
     margin-top: 40px;
-    border: 3px solid white;
+    border: 3px solid #b2b2b2;
     height: 60px;
     padding-top: 10px;
     text-align: center;
@@ -100,13 +99,14 @@ body {
 }
 
 .playsolo {
-    color: white;
+    color: #b3b2b2;
     margin-top: 10px;
     font-size: 12pt;
 }
 
 .playsolo:hover {
     color: white;
+    cursor: pointer;
 }
 
 #dotsBkg {
@@ -124,7 +124,7 @@ body {
 }
 
 .appText b {
-    color: white;
+    color: #29a468;
 }
 
 .circle {
@@ -168,7 +168,7 @@ body {
 }
 
 .waitingForResult {
-    color: white;
+    color: #c5c4c4;
     text-align: center;
     font-size: 20pt;
     font-family: gotham;
@@ -177,7 +177,7 @@ body {
 }
 
 .waitingForResult.win {
-    color: white;
+    color: #29a468;
     font-weight: bold;
 }
 
@@ -212,7 +212,7 @@ body {
     display: none;
     margin-left: auto;
     margin-top: 100px;
-    color: white;
+    color: #c5c4c4;
     max-width: 50vw;
     font-weight: 15pt;
     margin-right: auto;
@@ -231,12 +231,11 @@ body {
 }
 
 .node circle {
-  fill: #ffffff;
-  opacity: .2;
+  fill: #29a468;
 }
 
 .node circle:hover {
-  fill: #ffffff;
+  fill: #29a468;
   opacity: .5;
 }
 
@@ -249,8 +248,7 @@ body {
 }
 
 .node--internal circle {
-  fill: #ffffff;
-  opacity: .2;
+  fill: #29a468;
 }
 
 .node--internal text {
@@ -263,7 +261,7 @@ body {
 
 .link {
   fill: none;
-  stroke: #ffffff;
+  stroke: #29a468;
   stroke-width: 2.5px;
   stroke-opacity: .2;
 }
@@ -281,8 +279,8 @@ body {
     display: none;
     color: #29a468;
     width: 30vw;
-    max-width: 500px;
     font-size: 16pt;
+    background-color: rgb(33, 32, 33);
     float: right;
     padding-bottom: 50px;
 }
@@ -291,7 +289,7 @@ body {
     color: white;
     text-align: center;
     margin-top: 10px;
-    font-size: 12pt;
+    font-size: 18pt;
     padding-left: 10px;
 }
 
@@ -327,11 +325,11 @@ body {
 
 .rightPlayerBox {
     display: none;
-    margin-top: 0px;
-    color: white;
+    margin-top: 20px;
+    color: #29a468;
     width: 30vw;
-    max-width: 500px;
     font-size: 16pt;
+    background-color: rgb(33, 32, 33);
     float: right;
     padding-bottom: 50px;
 }
@@ -339,10 +337,9 @@ body {
 
 .rightPlayerBox .instruction{
     color: white;
-    text-align: left;
+    text-align: center;
     margin-top: 10px;
     font-size: 18pt;
-    padding-left: 10px;
 }
 
 .rightPlayerBox .subtext {
@@ -364,9 +361,8 @@ body {
 }
 
 .choicesTable td{
-    padding:5px;
+    padding:20px;
     border: 1px solid #29a468;
-    text-align: center;
 }
 
 .choicesTable tr:hover{
@@ -392,11 +388,11 @@ body {
 
 .goBackButton.ready{
     color: white;
-    border: 3px solid #208453;
+    border: 3px solid #29a468;
 }
 
 .goBackButton.ready:hover{
-    background-color: #208453;
+    background-color: #29a468;
     cursor: pointer;
 }
 
