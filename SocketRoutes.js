@@ -7,8 +7,8 @@ var io;
 var HOPS = 10;
 
 module.exports = function(http) {
-	io = require('socket.io')(http);
-	io.on('connection', onConnection);
+    io = require('socket.io')(http);
+    io.on('connection', onConnection);
 }
 
 onConnection = function(socket) {
@@ -171,7 +171,6 @@ onConnection = function(socket) {
                 if (game._turn[idx] == HOPS - 2) {
                     socket.emit("done", tempgame);
                 } else {
-                    console.log(tempgame);
                     setTimeout(function() {
                         socket.emit("turn", tempgame);
                     }, 1000)
@@ -244,9 +243,7 @@ function* playerPickFirstWord(socket, data) {
             yield dbUtils.saveGame(game);
             //	If this is a solo player, then the computer should pick the next word for them (a random one)
             if (game.players.length == 1) {
-            	var randomWordIdx = Math.floor(Math.random() * words.length);
-            	console.log(words);
-            	console.log(randomWordIdx);
+                var randomWordIdx = Math.floor(Math.random() * words.length);
                 Promise.coroutine(playerPickSecondWord)(socket, {
                     fbtoken: data.fbtoken,
                     word: words[randomWordIdx].title,
@@ -309,33 +306,56 @@ function* playerPickSecondWord(socket, data) {
         lookups = game.words.reduce(function(a, b) {
             return a.concat(b);
         }, []);
+        console.log(lookups);
         yield dbUtils.saveGame(game);
 
-        console.log(lookups);
-        //	Lookup the definitions for all the words.
-        request.post('http://localhost:1250/api/lookup', {
+        /*
+         * We need to determine the explanation for each path (like why each answer is such).
+         * Before passing a list of paths to bumblebee, we need to clean up a little.
+         */
+        var bumblebeePaths = game._paths.map((item) => {
+            return item.map((subItem) => {
+                return subItem[0]
+            });
+        });
+
+        //  Lookup the definitions for all the words.
+        request.post('http://localhost:1250/api/explain', {
             form: {
-                terms: JSON.stringify(lookups)
+                paths: JSON.stringify(bumblebeePaths)
             }
         }, Promise.coroutine(function*(err, resp, body) {
             if (body) {
                 var body = JSON.parse(resp.body).result;
                 var game = yield dbUtils.getGameByShortId(data.shortId);
-                console.log(body);
-                game._lookups = body;
-                console.log(body);
+                game._explanations = body.reasons;
+                console.log(game._explanations);
                 yield dbUtils.saveGame(game);
-                //	Remove the words that the user shouldn't see yet.
-                game = yield dbUtils.sanitizeForPlayer(game);
-
-                //	Tell all players that words have been chosen for all players
-                io.to(game.shortId).emit("wordsChosen", game);
-
-                //	Give them 15 seconds before the first turn.
-                setTimeout(function() {
-                    io.to(game.shortId).emit("turn", game);
-                }, 15000);
             }
+            //  Lookup the definitions for all the words.
+            request.post('http://localhost:1250/api/lookup', {
+                form: {
+                    terms: JSON.stringify(lookups)
+                }
+            }, Promise.coroutine(function*(err, resp, body) {
+                if (body) {
+                    var body = JSON.parse(resp.body).result;
+                    var game = yield dbUtils.getGameByShortId(data.shortId);
+                    game._lookups = body;
+                    console.log(body);
+                    yield dbUtils.saveGame(game);
+                    //  Remove the words that the user shouldn't see yet.
+                    game = yield dbUtils.sanitizeForPlayer(game);
+
+                    //  Tell all players that words have been chosen for all players
+                    io.to(game.shortId).emit("wordsChosen", game);
+
+                    //  Give them 15 seconds before the first turn.
+                    setTimeout(function() {
+                        io.to(game.shortId).emit("turn", game);
+                    }, 15000);
+                }
+            }));
         }));
     } else {
         yield dbUtils.saveGame(game);

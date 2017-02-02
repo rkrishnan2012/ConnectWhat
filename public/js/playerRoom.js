@@ -52,6 +52,7 @@ function loadUserPage() {
         wordsChosen(game);
     });
     socket.on("turn", function(game) {
+        console.log(game);
         $(".gameChooseOverlay").hide();
         $(".gameTimer").hide();
         $(".definitionTable").addClass("disabled");

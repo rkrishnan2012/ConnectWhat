@@ -16,6 +16,7 @@ function Game(ownerPlayerId, shortId) {
   this.status = "pregame";
   this.words = [];
   this._lookups = [];
+  this._explanations = [];
 }
 
 module.exports = {

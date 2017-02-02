@@ -139,12 +139,20 @@ module.exports.sanitizeForPlayer = function*(game) {
     }
     for (var j = 0; j < game._paths.length; j++) {
         game._paths[j] = game._paths[j].slice(0, game._turn[j] + 1);
+
+        if(game._lookups.length > 0) {
+            game._lookups[j] = game._lookups[j].slice(0, game._turn[j] + 1);
+        }
+
+        if(game._explanations.length > 0) {
+            game._explanations[j] = game._explanations[j].slice(0, game._turn[j] - 1);
+        }
+        
         if (game._paths[j].length > 0) {
             game._paths[j][game._paths[j].length - 1] = module.exports.shuffle(game._paths[j][game._paths[j].length - 1]);
         }
     }
 
-    delete game._lookups;
     for (var j = 0; j < game.players.length; j++) {
         game.players[j] = yield module.exports.getPlayerById(game.players[j]);
     }
