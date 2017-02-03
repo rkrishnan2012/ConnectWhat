@@ -9,7 +9,7 @@ body {
 }
 .appText {
     color: white;
-    opacity: .6;
+    opacity: .9;
     font-family: Gotham-Light;
     font-size: 24px;
     padding-left: 10px;
@@ -82,7 +82,7 @@ body {
 
 .gameStatus.ready{
     color: white;
-    border: 3px solid #29a468;
+    border: 3px solid white;
 }
 
 .gameStatus.ready:hover{
@@ -98,7 +98,7 @@ body {
 }
 
 .playsolo {
-    color: #b3b2b2;
+    color: white;
     margin-top: 25px;
     font-size: 12pt;
     display: inline-block;
@@ -168,7 +168,7 @@ body {
 }
 
 .waitingForResult {
-    color: #c5c4c4;
+    color: white;
     text-align: center;
     font-size: 20pt;
     font-family: gotham;
@@ -177,7 +177,7 @@ body {
 }
 
 .waitingForResult.win {
-    color: #29a468;
+    color: white;
     font-weight: bold;
 }
 
@@ -231,11 +231,12 @@ body {
 }
 
 .node circle {
-  fill: #29a468;
+    fill: #ffffff;
+    opacity: .2;
 }
 
 .node circle:hover {
-  fill: #29a468;
+  fill: #ffffff;
   opacity: .5;
 }
 
@@ -248,7 +249,8 @@ body {
 }
 
 .node--internal circle {
-  fill: #29a468;
+  fill: #ffffff;
+  opacity: .2;
 }
 
 .node--internal text {
@@ -261,7 +263,7 @@ body {
 
 .link {
   fill: none;
-  stroke: #29a468;
+  stroke: #ffffff;
   stroke-width: 2.5px;
   stroke-opacity: .2;
 }
@@ -280,16 +282,15 @@ body {
     color: #29a468;
     width: 30vw;
     font-size: 16pt;
-    background-color: rgb(33, 32, 33);
+    background-color: rgba(33, 32, 33, 0.60);
     float: right;
     padding-bottom: 50px;
 }
 
 .rightInfoBox .instruction{
     color: white;
-    text-align: center;
+    text-align: left;
     margin-top: 10px;
-    padding-left: 10px;
     font-size: 18pt;
 }
 
@@ -325,11 +326,12 @@ body {
 
 .rightPlayerBox {
     display: none;
-    margin-top: 20px;
-    color: #29a468;
+    margin-top: 0px;
+    color: white;
+    max-width: 500px;
     width: 30vw;
     font-size: 16pt;
-    background-color: rgb(33, 32, 33);
+    background-color: rgba(33, 32, 33, 0.60);
     float: right;
     padding-bottom: 50px;
 }
@@ -337,7 +339,7 @@ body {
 
 .rightPlayerBox .instruction{
     color: white;
-    text-align: center;
+    text-align: left;
     margin-top: 10px;
     font-size: 18pt;
 }
@@ -361,7 +363,7 @@ body {
 }
 
 .choicesTable td{
-    padding:20px;
+    padding:5px;
     border: 1px solid #29a468;
 }
 
@@ -388,11 +390,11 @@ body {
 
 .goBackButton.ready{
     color: white;
-    border: 3px solid #29a468;
+    border: 3px solid #208453;
 }
 
 .goBackButton.ready:hover{
-    background-color: #29a468;
+    background-color: #208453;
     cursor: pointer;
 }
 
