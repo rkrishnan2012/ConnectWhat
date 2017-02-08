@@ -84,7 +84,7 @@ onConnection = function(socket) {
 
             //	Check if all players have pressed "ready". In which case we send "pickWord" event.
             if (game.scores.length == game.players.length) {
-                request.post('http://bumblebee.hivelabs.it/api/topics', {}, function(error, response, body) {
+                request.post('http://localhost:1250/api/topics', {}, function(error, response, body) {
                     var body = JSON.parse(response.body);
                     var words = body.splice(0, 12);
                     //	If there is only 1 player in the game (you're solo), then have the computer
@@ -223,7 +223,7 @@ function* playerPickFirstWord(socket, data) {
     }
 
     //	Get a list of words that are 10 hops away from this word using Bumblebee.
-    request.post('http://bumblebee.hivelabs.it/api/topics', {
+    request.post('http://localhost:1250/api/topics', {
         form: {
             startWord: data.word,
             maxHops: 10
@@ -321,7 +321,7 @@ function* playerPickSecondWord(socket, data) {
         });
 
         //  Lookup the definitions for all the words.
-        request.post('http://bumblebee.hivelabs.it/api/explain', {
+        request.post('http://localhost:1250/api/explain', {
             form: {
                 paths: JSON.stringify(bumblebeePaths)
             }
@@ -334,7 +334,7 @@ function* playerPickSecondWord(socket, data) {
                 yield dbUtils.saveGame(game);
             }
             //  Lookup the definitions for all the words.
-            request.post('http://bumblebee.hivelabs.it/api/lookup', {
+            request.post('http://localhost:1250/api/lookup', {
                 form: {
                     terms: JSON.stringify(lookups)
                 }
