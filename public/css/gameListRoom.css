@@ -49,3 +49,16 @@
     color: white;
 }
 
+.facebookLogout{
+    color: white;
+    font-size: 10pt;
+    font-family: 'Gotham-Light';
+    margin-left: 643px;
+    margin-right: auto;
+    margin-top: 10px;
+    text-align: center;
+    background-color: #4267B2;
+    display: block;
+    height: 30px;
+}
+
