@@ -1,10 +1,16 @@
 function loadGamesList() {
     $(".yourgames").show();
     $(".gamesList").show();
+    $(".facebookLogout").show();
     $(".yourgames").text(getCookie("fbname") + "'s games");
 
     $(".createNewBtn").click(function() {
         window.location = "/new";
+    });
+
+    $(".facebookLogout").click(function() {
+        logout();
+        window.location = "/";
     });
 
     $.get("/api/v1/games", function(data) {
