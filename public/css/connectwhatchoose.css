@@ -59,3 +59,20 @@ td {
     font-family: Gotham-Light;
     cursor: pointer;
 }
+
+td:nth-child(5) {
+    cursor: pointer;
+}
+
+.facebookLogout{
+    color: white;
+    font-size: 10pt;
+    font-family: 'Gotham-Light';
+    margin-left: 667px;
+    margin-right: auto;
+    margin-top: 10px;
+    text-align: center;
+    background-color: #4267B2;
+    display: block;
+    height: 30px;
+}
