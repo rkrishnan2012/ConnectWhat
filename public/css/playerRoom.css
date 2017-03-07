@@ -422,3 +422,8 @@ body {
     font-size: 12pt;
     margin-top: 20px;
 }
+
+.hintText {
+    padding: 15px;
+    color: white;
+}

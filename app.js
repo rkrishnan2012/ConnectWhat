@@ -33,5 +33,5 @@ app.get('/api/v1/games', APIRoutes.GetGames);
 app.get('/join/:id', APIRoutes.GetJoinGameId);
 
 http.listen(9000, function() {
-    console.log('yolo on port 80');
+    console.log('yolo on port 9000');
 });

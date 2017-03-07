@@ -145,7 +145,11 @@ module.exports.sanitizeForPlayer = function*(game) {
         }
 
         if(game._explanations.length > 0) {
-            game._explanations[j] = game._explanations[j].slice(0, game._turn[j] - 1);
+            game._explanations[j] = game._explanations[j].slice(0, game._turn[j]);
+            console.log("Hiding " + game._paths[j][game._paths[j].length - 1][0]);
+            game._explanations[j] = game._explanations[j].map((item, idx) => {
+                return item.replace(game._paths[j][game._paths[j].length - 1][0], "____");
+            });
         }
         
         if (game._paths[j].length > 0) {

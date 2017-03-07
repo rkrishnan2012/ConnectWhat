@@ -221,7 +221,7 @@ function* playerPickFirstWord(socket, data) {
     } else {
         console.log(fbUser.name + "'s first word chosen by computer is " + data.word);
     }
-
+    console.log(data);
     //	Get a list of words that are 10 hops away from this word using Bumblebee.
     request.post('http://localhost:1250/api/topics', {
         form: {
@@ -239,7 +239,7 @@ function* playerPickFirstWord(socket, data) {
             var words = [];
             for (var i = 0; i < Math.min(12, body.endNodes.length); i++) {
                 words.push(body.endNodes[i]);
-                game._paths[body.endNodes[i].title] = body.paths[i];
+                game._paths[body.endNodes[i].title] = body.paths[i].reverse();
             }
             yield dbUtils.saveGame(game);
             //	If this is a solo player, then the computer should pick the next word for them (a random one)
@@ -308,6 +308,7 @@ function* playerPickSecondWord(socket, data) {
             return a.concat(b);
         }, []);
         console.log(lookups);
+
         yield dbUtils.saveGame(game);
 
         /*
@@ -319,6 +320,8 @@ function* playerPickSecondWord(socket, data) {
                 return subItem[0]
             });
         });
+
+        console.log("Getting explain. ");
 
         //  Lookup the definitions for all the words.
         request.post('http://localhost:1250/api/explain', {
@@ -347,6 +350,8 @@ function* playerPickSecondWord(socket, data) {
                     yield dbUtils.saveGame(game);
                     //  Remove the words that the user shouldn't see yet.
                     game = yield dbUtils.sanitizeForPlayer(game);
+
+                    console.log("Words chosen");
 
                     //  Tell all players that words have been chosen for all players
                     io.to(game.shortId).emit("wordsChosen", game);

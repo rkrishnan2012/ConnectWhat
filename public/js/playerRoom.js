@@ -174,6 +174,7 @@ function showTree(game) {
         }
     }
     $(".definitionTable").hide();
+    $(".hintText").text(game._explanations[idx][game._explanations[idx].length - 1]);
     $(".word1").text(game.words[idx][0].word);
     $(".word2").text(game.words[idx][1].word);
     $(".definition1").text(game.words[idx][0].longSummary);
