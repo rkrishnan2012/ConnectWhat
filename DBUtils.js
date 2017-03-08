@@ -126,6 +126,7 @@ module.exports.shuffle = function (array) {
 
 module.exports.sanitizeForPlayer = function*(game) {
     for (var j = 0; j < game.words.length; j++) {
+        game.words[j].reverse();
         var lookupWord = game._lookups[game.words[j][0]] || {};
         game.words[j][0] = {
             word: game.words[j][0],
@@ -137,6 +138,7 @@ module.exports.sanitizeForPlayer = function*(game) {
             longSummary: lookupWord.longSummary
         };
     }
+
     for (var j = 0; j < game._paths.length; j++) {
         game._paths[j] = game._paths[j].slice(0, game._turn[j] + 1);
 
