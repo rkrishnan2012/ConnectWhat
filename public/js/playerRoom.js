@@ -36,6 +36,7 @@ function loadUserPage() {
 
         $(".playsolo").click(function() {
             $(".waitingForResult").text("The monkeys are finding some words for you to connect. Hold your bananas.");
+            
             $(".waitingForResult").show();
             $(".gameChooseOverlay").hide();
             socket.emit('ready', {
