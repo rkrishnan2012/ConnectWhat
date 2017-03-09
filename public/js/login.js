@@ -43,20 +43,27 @@ function needsLogin() {
 }
 
 function login() {
-    FB.login(function(response) {
-        loadUserPage();
+    FB.login(function(fb) {
+        document.cookie = "fbtoken=" + fb.authResponse.accessToken;
+        document.cookie = "fbid=" + fb.authResponse.userID;
+        FB.api('/me', {
+            fields: 'name'
+        }, function(response) {
+            document.cookie = "fbname=" + response.name;
+            loadUserPage();
+        });
     }, {
         scope: 'read_custom_friendlists'
     });
 }
 
-function logout() {
-    FB.logout(function(response) {
-        // user is now logged out
+function logout(callback) {
+    document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-
-    //erase facebook cookie
-    document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+    FB.logout(function(response) {
+        callback();
+    });
 }
 
 function getFriendsList() {

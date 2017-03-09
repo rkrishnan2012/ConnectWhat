@@ -9,8 +9,9 @@ function loadGamesList() {
     });
 
     $(".facebookLogout").click(function() {
-        logout();
-        window.location = "/";
+        logout(function() {
+           window.location = "/"; 
+        });
     });
 
     $.get("/api/v1/games", function(data) {
