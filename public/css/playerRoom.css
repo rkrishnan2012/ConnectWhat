@@ -1,6 +1,7 @@
 @font-face {
-    font-family: 'Gotham-Light';
-    src: url('/fonts/Gotham-Light.ttf');
+    font-family: "Gotham SSm A", "Gotham SSm B";
+    font-style: normal;
+    font-weight: 300;
 }
 
 body {
