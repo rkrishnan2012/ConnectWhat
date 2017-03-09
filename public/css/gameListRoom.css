@@ -1,3 +1,10 @@
+@font-face {
+    font-family: "Gotham SSm A", "Gotham SSm B";
+    font-style: normal;
+    font-weight: 300;
+}
+
+
 .yourgames {
     display: none;
 }
@@ -9,7 +16,7 @@
 .createNewBtn{
 	color: #b3b2b2;
     font-size: 30px;
-    font-family: 'Gotham-Light';
+    font-family: "Gotham SSm A", "Gotham SSm B";
     margin-left: auto;
     margin-right: auto;
     margin-top: 40px;
@@ -22,6 +29,7 @@
 }
 
 .createNewBtn.ready{
+    font-family: "Gotham SSm A", "Gotham SSm B";
     color: white;
     border: 3px solid white;
 }
@@ -52,7 +60,7 @@
 .facebookLogout{
     color: white;
     font-size: 20px;
-    font-family: 'Gotham-Light';
+    font-family: "Gotham SSm A", "Gotham SSm B";
     margin-right: 10px;
     margin-top: -40px;
     text-align: center;
