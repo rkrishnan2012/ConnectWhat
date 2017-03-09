@@ -54,7 +54,9 @@ function logout() {
     FB.logout(function(response) {
         // user is now logged out
     });
-    document.cookie = '';
+
+    //erase facebook cookie
+    document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
 }
 
 function getFriendsList() {
